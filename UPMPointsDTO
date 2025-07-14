@@ -1,0 +1,2289 @@
+using System;
+using Microsoft.VisualBasic;
+
+namespace Entergy.PerformanceManagement.PMDTO
+{
+	// Token: 0x02000049 RID: 73
+	public class UPMPointsDTO : IModificationIndicator, ICloneable
+	{
+		// Token: 0x06000519 RID: 1305 RVA: 0x00007764 File Offset: 0x00005B64
+		public UPMPointsDTO()
+		{
+			this._buffer = IModificationIndicator.ModificationTypes.NotModified;
+			this.AchLevel = null;
+			this._label = string.Empty;
+		}
+
+		// Token: 0x17000267 RID: 615
+		// (get) Token: 0x0600051A RID: 1306 RVA: 0x00007798 File Offset: 0x00005B98
+		// (set) Token: 0x0600051B RID: 1307 RVA: 0x000077AC File Offset: 0x00005BAC
+		public int DS_ID
+		{
+			get
+			{
+				return this._DS_ID;
+			}
+			set
+			{
+				this._DS_ID = value;
+			}
+		}
+
+		// Token: 0x17000268 RID: 616
+		// (get) Token: 0x0600051C RID: 1308 RVA: 0x000077B8 File Offset: 0x00005BB8
+		// (set) Token: 0x0600051D RID: 1309 RVA: 0x000077CC File Offset: 0x00005BCC
+		public int C_ID
+		{
+			get
+			{
+				return this._C_ID;
+			}
+			set
+			{
+				this._C_ID = value;
+			}
+		}
+
+		// Token: 0x17000269 RID: 617
+		// (get) Token: 0x0600051E RID: 1310 RVA: 0x000077D8 File Offset: 0x00005BD8
+		// (set) Token: 0x0600051F RID: 1311 RVA: 0x000077EC File Offset: 0x00005BEC
+		public string MetricID
+		{
+			get
+			{
+				return this._MetricID;
+			}
+			set
+			{
+				this._MetricID = value;
+			}
+		}
+
+		// Token: 0x1700026A RID: 618
+		// (get) Token: 0x06000520 RID: 1312 RVA: 0x000077F8 File Offset: 0x00005BF8
+		// (set) Token: 0x06000521 RID: 1313 RVA: 0x0000780C File Offset: 0x00005C0C
+		public string ReportingYear
+		{
+			get
+			{
+				return this._ReportingYear;
+			}
+			set
+			{
+				this._ReportingYear = value;
+			}
+		}
+
+		// Token: 0x1700026B RID: 619
+		// (get) Token: 0x06000522 RID: 1314 RVA: 0x00007818 File Offset: 0x00005C18
+		// (set) Token: 0x06000523 RID: 1315 RVA: 0x0000782C File Offset: 0x00005C2C
+		public string PointsDescription
+		{
+			get
+			{
+				return this._PointsDescription;
+			}
+			set
+			{
+				this._PointsDescription = value;
+			}
+		}
+
+		// Token: 0x1700026C RID: 620
+		// (get) Token: 0x06000524 RID: 1316 RVA: 0x00007838 File Offset: 0x00005C38
+		// (set) Token: 0x06000525 RID: 1317 RVA: 0x0000784C File Offset: 0x00005C4C
+		public int MonthValue
+		{
+			get
+			{
+				return this._MonthValue;
+			}
+			set
+			{
+				this._MonthValue = value;
+			}
+		}
+
+		// Token: 0x1700026D RID: 621
+		// (get) Token: 0x06000526 RID: 1318 RVA: 0x00007858 File Offset: 0x00005C58
+		// (set) Token: 0x06000527 RID: 1319 RVA: 0x0000786C File Offset: 0x00005C6C
+		public string UserID
+		{
+			get
+			{
+				return this._UserID;
+			}
+			set
+			{
+				this._UserID = value;
+			}
+		}
+
+		// Token: 0x1700026E RID: 622
+		// (get) Token: 0x06000528 RID: 1320 RVA: 0x00007878 File Offset: 0x00005C78
+		// (set) Token: 0x06000529 RID: 1321 RVA: 0x0000788C File Offset: 0x00005C8C
+		public string CreatedBy
+		{
+			get
+			{
+				return this._CreatedBy;
+			}
+			set
+			{
+				this._CreatedBy = value;
+			}
+		}
+
+		// Token: 0x1700026F RID: 623
+		// (get) Token: 0x0600052A RID: 1322 RVA: 0x00007898 File Offset: 0x00005C98
+		// (set) Token: 0x0600052B RID: 1323 RVA: 0x000078AC File Offset: 0x00005CAC
+		public string ChangedBy
+		{
+			get
+			{
+				return this._ChangedBy;
+			}
+			set
+			{
+				this._ChangedBy = value;
+			}
+		}
+
+		// Token: 0x17000270 RID: 624
+		// (get) Token: 0x0600052C RID: 1324 RVA: 0x000078B8 File Offset: 0x00005CB8
+		// (set) Token: 0x0600052D RID: 1325 RVA: 0x000078CC File Offset: 0x00005CCC
+		public DateTime ChangedDate
+		{
+			get
+			{
+				return this._ChangedDate;
+			}
+			set
+			{
+				this._ChangedDate = value;
+			}
+		}
+
+		// Token: 0x17000271 RID: 625
+		// (get) Token: 0x0600052E RID: 1326 RVA: 0x000078D8 File Offset: 0x00005CD8
+		// (set) Token: 0x0600052F RID: 1327 RVA: 0x000078EC File Offset: 0x00005CEC
+		public DateTime CreateDate
+		{
+			get
+			{
+				return this._CreateDate;
+			}
+			set
+			{
+				this._CreateDate = value;
+			}
+		}
+
+		// Token: 0x17000272 RID: 626
+		// (get) Token: 0x06000530 RID: 1328 RVA: 0x000078F8 File Offset: 0x00005CF8
+		// (set) Token: 0x06000531 RID: 1329 RVA: 0x0000790C File Offset: 0x00005D0C
+		public string PerfLevel
+		{
+			get
+			{
+				return this._PerfLevel;
+			}
+			set
+			{
+				this._PerfLevel = value;
+			}
+		}
+
+		// Token: 0x17000273 RID: 627
+		// (get) Token: 0x06000532 RID: 1330 RVA: 0x00007918 File Offset: 0x00005D18
+		// (set) Token: 0x06000533 RID: 1331 RVA: 0x0000792C File Offset: 0x00005D2C
+		public int? AchLevel
+		{
+			get
+			{
+				return this._AchLevel;
+			}
+			set
+			{
+				this._AchLevel = value;
+			}
+		}
+
+		// Token: 0x17000274 RID: 628
+		// (get) Token: 0x06000534 RID: 1332 RVA: 0x00007938 File Offset: 0x00005D38
+		// (set) Token: 0x06000535 RID: 1333 RVA: 0x00007968 File Offset: 0x00005D68
+		public object NullableYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.YValue))
+				{
+					return DBNull.Value;
+				}
+				return this._Y;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				decimal? num;
+				this._Y = ((value != null) ? ((decimal?)value) : num);
+			}
+		}
+
+		// Token: 0x17000275 RID: 629
+		// (get) Token: 0x06000536 RID: 1334 RVA: 0x00007994 File Offset: 0x00005D94
+		public object NullableJANYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.JANPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.JANPoints;
+			}
+		}
+
+		// Token: 0x17000276 RID: 630
+		// (get) Token: 0x06000537 RID: 1335 RVA: 0x000079C4 File Offset: 0x00005DC4
+		public object NullableFEBYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.FEBPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.FEBPoints;
+			}
+		}
+
+		// Token: 0x17000277 RID: 631
+		// (get) Token: 0x06000538 RID: 1336 RVA: 0x000079F4 File Offset: 0x00005DF4
+		public object NullableMARYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.MARPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.MARPoints;
+			}
+		}
+
+		// Token: 0x17000278 RID: 632
+		// (get) Token: 0x06000539 RID: 1337 RVA: 0x00007A24 File Offset: 0x00005E24
+		public object NullableAPRYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.APRPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.APRPoints;
+			}
+		}
+
+		// Token: 0x17000279 RID: 633
+		// (get) Token: 0x0600053A RID: 1338 RVA: 0x00007A54 File Offset: 0x00005E54
+		public object NullableMAYYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.MAYPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.MAYPoints;
+			}
+		}
+
+		// Token: 0x1700027A RID: 634
+		// (get) Token: 0x0600053B RID: 1339 RVA: 0x00007A84 File Offset: 0x00005E84
+		public object NullableJUNYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.JUNPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.JUNPoints;
+			}
+		}
+
+		// Token: 0x1700027B RID: 635
+		// (get) Token: 0x0600053C RID: 1340 RVA: 0x00007AB4 File Offset: 0x00005EB4
+		public object NullableJULYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.JULPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.JULPoints;
+			}
+		}
+
+		// Token: 0x1700027C RID: 636
+		// (get) Token: 0x0600053D RID: 1341 RVA: 0x00007AE4 File Offset: 0x00005EE4
+		public object NullableAUGYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.AUGPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.AUGPoints;
+			}
+		}
+
+		// Token: 0x1700027D RID: 637
+		// (get) Token: 0x0600053E RID: 1342 RVA: 0x00007B14 File Offset: 0x00005F14
+		public object NullableSEPYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.SEPPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.SEPPoints;
+			}
+		}
+
+		// Token: 0x1700027E RID: 638
+		// (get) Token: 0x0600053F RID: 1343 RVA: 0x00007B44 File Offset: 0x00005F44
+		public object NullableOCTYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.OCTPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.OCTPoints;
+			}
+		}
+
+		// Token: 0x1700027F RID: 639
+		// (get) Token: 0x06000540 RID: 1344 RVA: 0x00007B74 File Offset: 0x00005F74
+		public object NullableNOVYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.NOVPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.NOVPoints;
+			}
+		}
+
+		// Token: 0x17000280 RID: 640
+		// (get) Token: 0x06000541 RID: 1345 RVA: 0x00007BA4 File Offset: 0x00005FA4
+		public object NullableDECYValue
+		{
+			get
+			{
+				if (Information.IsNothing(this.DECPoints))
+				{
+					return DBNull.Value;
+				}
+				return this.DECPoints;
+			}
+		}
+
+		// Token: 0x17000281 RID: 641
+		// (get) Token: 0x06000542 RID: 1346 RVA: 0x00007BD4 File Offset: 0x00005FD4
+		// (set) Token: 0x06000543 RID: 1347 RVA: 0x00007BE8 File Offset: 0x00005FE8
+		public string MonthDesc
+		{
+			get
+			{
+				return this._mondesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._mondesc = value;
+			}
+		}
+
+		// Token: 0x17000282 RID: 642
+		// (get) Token: 0x06000544 RID: 1348 RVA: 0x00007BF8 File Offset: 0x00005FF8
+		// (set) Token: 0x06000545 RID: 1349 RVA: 0x00007C0C File Offset: 0x0000600C
+		public decimal? YValue
+		{
+			get
+			{
+				return this._Y;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._Y = value;
+			}
+		}
+
+		// Token: 0x17000283 RID: 643
+		// (get) Token: 0x06000546 RID: 1350 RVA: 0x00007C1C File Offset: 0x0000601C
+		// (set) Token: 0x06000547 RID: 1351 RVA: 0x00007C30 File Offset: 0x00006030
+		public bool Active
+		{
+			get
+			{
+				return this._active;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._active = value;
+			}
+		}
+
+		// Token: 0x17000284 RID: 644
+		// (get) Token: 0x06000548 RID: 1352 RVA: 0x00007C40 File Offset: 0x00006040
+		// (set) Token: 0x06000549 RID: 1353 RVA: 0x00007C54 File Offset: 0x00006054
+		public bool ShowOnTrend
+		{
+			get
+			{
+				return this._show;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._show = value;
+			}
+		}
+
+		// Token: 0x17000285 RID: 645
+		// (get) Token: 0x0600054A RID: 1354 RVA: 0x00007C64 File Offset: 0x00006064
+		// (set) Token: 0x0600054B RID: 1355 RVA: 0x00007C78 File Offset: 0x00006078
+		public bool ShowAsLine
+		{
+			get
+			{
+				return this._line;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._line = value;
+			}
+		}
+
+		// Token: 0x17000286 RID: 646
+		// (get) Token: 0x0600054C RID: 1356 RVA: 0x00007C88 File Offset: 0x00006088
+		// (set) Token: 0x0600054D RID: 1357 RVA: 0x00007C9C File Offset: 0x0000609C
+		public bool ShowAsStackBar
+		{
+			get
+			{
+				return this._showAsStack;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._showAsStack = value;
+			}
+		}
+
+		// Token: 0x17000287 RID: 647
+		// (get) Token: 0x0600054E RID: 1358 RVA: 0x00007CAC File Offset: 0x000060AC
+		// (set) Token: 0x0600054F RID: 1359 RVA: 0x00007CC4 File Offset: 0x000060C4
+		public int? month
+		{
+			get
+			{
+				return this._month;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._month = (T)value;
+			}
+		}
+
+		// Token: 0x17000288 RID: 648
+		// (get) Token: 0x06000550 RID: 1360 RVA: 0x00007CD8 File Offset: 0x000060D8
+		// (set) Token: 0x06000551 RID: 1361 RVA: 0x00007CEC File Offset: 0x000060EC
+		public int? DSID
+		{
+			get
+			{
+				return this._dsID;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._dsID = value;
+			}
+		}
+
+		// Token: 0x17000289 RID: 649
+		// (get) Token: 0x06000552 RID: 1362 RVA: 0x00007CFC File Offset: 0x000060FC
+		// (set) Token: 0x06000553 RID: 1363 RVA: 0x00007D10 File Offset: 0x00006110
+		public int CID
+		{
+			get
+			{
+				return this._cID;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._cID = value;
+			}
+		}
+
+		// Token: 0x1700028A RID: 650
+		// (get) Token: 0x06000554 RID: 1364 RVA: 0x00007D20 File Offset: 0x00006120
+		// (set) Token: 0x06000555 RID: 1365 RVA: 0x00007D34 File Offset: 0x00006134
+		public int? DataSeries
+		{
+			get
+			{
+				return this._dataSeries;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._dataSeries = value;
+			}
+		}
+
+		// Token: 0x1700028B RID: 651
+		// (get) Token: 0x06000556 RID: 1366 RVA: 0x00007D44 File Offset: 0x00006144
+		// (set) Token: 0x06000557 RID: 1367 RVA: 0x00007D58 File Offset: 0x00006158
+		public string dsDescription
+		{
+			get
+			{
+				return this._dsdesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._dsdesc = value;
+			}
+		}
+
+		// Token: 0x1700028C RID: 652
+		// (get) Token: 0x06000558 RID: 1368 RVA: 0x00007D68 File Offset: 0x00006168
+		// (set) Token: 0x06000559 RID: 1369 RVA: 0x00007D7C File Offset: 0x0000617C
+		public int FormatID
+		{
+			get
+			{
+				return this._formatID;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._formatID = value;
+			}
+		}
+
+		// Token: 0x0600055A RID: 1370 RVA: 0x00007D8C File Offset: 0x0000618C
+		public void InitializeBuffers()
+		{
+			this._JANModified = false;
+			this._FEBModified = false;
+			this._MARModified = false;
+			this._APRModified = false;
+			this._MAYModified = false;
+			this._JUNModified = false;
+			this._JULModified = false;
+			this._AUGModified = false;
+			this._SEPModified = false;
+			this._OCTModified = false;
+			this._NOVModified = false;
+			this._DECModified = false;
+		}
+
+		// Token: 0x1700028D RID: 653
+		// (get) Token: 0x0600055B RID: 1371 RVA: 0x00007DF0 File Offset: 0x000061F0
+		// (set) Token: 0x0600055C RID: 1372 RVA: 0x00007E04 File Offset: 0x00006204
+		public decimal? JANPoints
+		{
+			get
+			{
+				return this._JANPoints;
+			}
+			set
+			{
+				this._JANModified = true;
+				this._JANPoints = value;
+			}
+		}
+
+		// Token: 0x1700028E RID: 654
+		// (get) Token: 0x0600055D RID: 1373 RVA: 0x00007E14 File Offset: 0x00006214
+		// (set) Token: 0x0600055E RID: 1374 RVA: 0x00007E28 File Offset: 0x00006228
+		public string JANMonDesc
+		{
+			get
+			{
+				return this._JANDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JANDesc = value;
+			}
+		}
+
+		// Token: 0x1700028F RID: 655
+		// (get) Token: 0x0600055F RID: 1375 RVA: 0x00007E38 File Offset: 0x00006238
+		// (set) Token: 0x06000560 RID: 1376 RVA: 0x00007E4C File Offset: 0x0000624C
+		public int JANMonthValue
+		{
+			get
+			{
+				return this._JANMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JANMonthValue = value;
+			}
+		}
+
+		// Token: 0x17000290 RID: 656
+		// (get) Token: 0x06000561 RID: 1377 RVA: 0x00007E5C File Offset: 0x0000625C
+		// (set) Token: 0x06000562 RID: 1378 RVA: 0x00007E70 File Offset: 0x00006270
+		public int JANReportingYear
+		{
+			get
+			{
+				return this._JANRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JANRYear = value;
+			}
+		}
+
+		// Token: 0x17000291 RID: 657
+		// (get) Token: 0x06000563 RID: 1379 RVA: 0x00007E80 File Offset: 0x00006280
+		// (set) Token: 0x06000564 RID: 1380 RVA: 0x00007E94 File Offset: 0x00006294
+		public string JANComment
+		{
+			get
+			{
+				return this._JANComment;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JANComment = value;
+			}
+		}
+
+		// Token: 0x17000292 RID: 658
+		// (get) Token: 0x06000565 RID: 1381 RVA: 0x00007EA4 File Offset: 0x000062A4
+		// (set) Token: 0x06000566 RID: 1382 RVA: 0x00007EB8 File Offset: 0x000062B8
+		public string JANPerflevel
+		{
+			get
+			{
+				return this._JANPerfLevel;
+			}
+			set
+			{
+				this._JANPerfLevel = value;
+			}
+		}
+
+		// Token: 0x17000293 RID: 659
+		// (get) Token: 0x06000567 RID: 1383 RVA: 0x00007EC4 File Offset: 0x000062C4
+		// (set) Token: 0x06000568 RID: 1384 RVA: 0x00007ED8 File Offset: 0x000062D8
+		public decimal? FEBPoints
+		{
+			get
+			{
+				return this._FEBPoints;
+			}
+			set
+			{
+				this._FEBModified = true;
+				this._FEBPoints = value;
+			}
+		}
+
+		// Token: 0x17000294 RID: 660
+		// (get) Token: 0x06000569 RID: 1385 RVA: 0x00007EE8 File Offset: 0x000062E8
+		// (set) Token: 0x0600056A RID: 1386 RVA: 0x00007EFC File Offset: 0x000062FC
+		public string FEBMonDesc
+		{
+			get
+			{
+				return this._FEBDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._FEBDesc = value;
+			}
+		}
+
+		// Token: 0x17000295 RID: 661
+		// (get) Token: 0x0600056B RID: 1387 RVA: 0x00007F0C File Offset: 0x0000630C
+		// (set) Token: 0x0600056C RID: 1388 RVA: 0x00007F20 File Offset: 0x00006320
+		public int FEBMonthValue
+		{
+			get
+			{
+				return this._FEBMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._FEBMonthValue = value;
+			}
+		}
+
+		// Token: 0x17000296 RID: 662
+		// (get) Token: 0x0600056D RID: 1389 RVA: 0x00007F30 File Offset: 0x00006330
+		// (set) Token: 0x0600056E RID: 1390 RVA: 0x00007F44 File Offset: 0x00006344
+		public int FEBReportingYear
+		{
+			get
+			{
+				return this._FEBRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._FEBRYear = value;
+			}
+		}
+
+		// Token: 0x17000297 RID: 663
+		// (get) Token: 0x0600056F RID: 1391 RVA: 0x00007F54 File Offset: 0x00006354
+		// (set) Token: 0x06000570 RID: 1392 RVA: 0x00007F68 File Offset: 0x00006368
+		public string FEBPerflevel
+		{
+			get
+			{
+				return this._FEBPerfLevel;
+			}
+			set
+			{
+				this._FEBPerfLevel = value;
+			}
+		}
+
+		// Token: 0x17000298 RID: 664
+		// (get) Token: 0x06000571 RID: 1393 RVA: 0x00007F74 File Offset: 0x00006374
+		// (set) Token: 0x06000572 RID: 1394 RVA: 0x00007F88 File Offset: 0x00006388
+		public decimal? MARPoints
+		{
+			get
+			{
+				return this._MARPoints;
+			}
+			set
+			{
+				this._MARModified = true;
+				this._MARPoints = value;
+			}
+		}
+
+		// Token: 0x17000299 RID: 665
+		// (get) Token: 0x06000573 RID: 1395 RVA: 0x00007F98 File Offset: 0x00006398
+		// (set) Token: 0x06000574 RID: 1396 RVA: 0x00007FAC File Offset: 0x000063AC
+		public string MARMonDesc
+		{
+			get
+			{
+				return this._MARDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._MARDesc = value;
+			}
+		}
+
+		// Token: 0x1700029A RID: 666
+		// (get) Token: 0x06000575 RID: 1397 RVA: 0x00007FBC File Offset: 0x000063BC
+		// (set) Token: 0x06000576 RID: 1398 RVA: 0x00007FD0 File Offset: 0x000063D0
+		public int MARMonthValue
+		{
+			get
+			{
+				return this._MARMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._MARMonthValue = value;
+			}
+		}
+
+		// Token: 0x1700029B RID: 667
+		// (get) Token: 0x06000577 RID: 1399 RVA: 0x00007FE0 File Offset: 0x000063E0
+		// (set) Token: 0x06000578 RID: 1400 RVA: 0x00007FF4 File Offset: 0x000063F4
+		public int MARReportingYear
+		{
+			get
+			{
+				return this._MARRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._MARRYear = value;
+			}
+		}
+
+		// Token: 0x1700029C RID: 668
+		// (get) Token: 0x06000579 RID: 1401 RVA: 0x00008004 File Offset: 0x00006404
+		// (set) Token: 0x0600057A RID: 1402 RVA: 0x00008018 File Offset: 0x00006418
+		public string MARPerflevel
+		{
+			get
+			{
+				return this._MARPerfLevel;
+			}
+			set
+			{
+				this._MARPerfLevel = value;
+			}
+		}
+
+		// Token: 0x1700029D RID: 669
+		// (get) Token: 0x0600057B RID: 1403 RVA: 0x00008024 File Offset: 0x00006424
+		// (set) Token: 0x0600057C RID: 1404 RVA: 0x00008038 File Offset: 0x00006438
+		public decimal? APRPoints
+		{
+			get
+			{
+				return this._APRPoints;
+			}
+			set
+			{
+				this._APRModified = true;
+				this._APRPoints = value;
+			}
+		}
+
+		// Token: 0x1700029E RID: 670
+		// (get) Token: 0x0600057D RID: 1405 RVA: 0x00008048 File Offset: 0x00006448
+		// (set) Token: 0x0600057E RID: 1406 RVA: 0x0000805C File Offset: 0x0000645C
+		public string APRMonDesc
+		{
+			get
+			{
+				return this._APRDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._APRDesc = value;
+			}
+		}
+
+		// Token: 0x1700029F RID: 671
+		// (get) Token: 0x0600057F RID: 1407 RVA: 0x0000806C File Offset: 0x0000646C
+		// (set) Token: 0x06000580 RID: 1408 RVA: 0x00008080 File Offset: 0x00006480
+		public int APRMonthValue
+		{
+			get
+			{
+				return this._APRMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._APRMonthValue = value;
+			}
+		}
+
+		// Token: 0x170002A0 RID: 672
+		// (get) Token: 0x06000581 RID: 1409 RVA: 0x00008090 File Offset: 0x00006490
+		// (set) Token: 0x06000582 RID: 1410 RVA: 0x000080A4 File Offset: 0x000064A4
+		public int APRReportingYear
+		{
+			get
+			{
+				return this._APRRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._APRRYear = value;
+			}
+		}
+
+		// Token: 0x170002A1 RID: 673
+		// (get) Token: 0x06000583 RID: 1411 RVA: 0x000080B4 File Offset: 0x000064B4
+		// (set) Token: 0x06000584 RID: 1412 RVA: 0x000080C8 File Offset: 0x000064C8
+		public string APRPerflevel
+		{
+			get
+			{
+				return this._APRPerfLevel;
+			}
+			set
+			{
+				this._APRPerfLevel = value;
+			}
+		}
+
+		// Token: 0x170002A2 RID: 674
+		// (get) Token: 0x06000585 RID: 1413 RVA: 0x000080D4 File Offset: 0x000064D4
+		// (set) Token: 0x06000586 RID: 1414 RVA: 0x000080E8 File Offset: 0x000064E8
+		public decimal? MAYPoints
+		{
+			get
+			{
+				return this._MAYPoints;
+			}
+			set
+			{
+				this._MAYModified = true;
+				this._MAYPoints = value;
+			}
+		}
+
+		// Token: 0x170002A3 RID: 675
+		// (get) Token: 0x06000587 RID: 1415 RVA: 0x000080F8 File Offset: 0x000064F8
+		// (set) Token: 0x06000588 RID: 1416 RVA: 0x0000810C File Offset: 0x0000650C
+		public string MayMonDesc
+		{
+			get
+			{
+				return this._MayDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._MayDesc = value;
+			}
+		}
+
+		// Token: 0x170002A4 RID: 676
+		// (get) Token: 0x06000589 RID: 1417 RVA: 0x0000811C File Offset: 0x0000651C
+		// (set) Token: 0x0600058A RID: 1418 RVA: 0x00008130 File Offset: 0x00006530
+		public int MayMonthValue
+		{
+			get
+			{
+				return this._MayMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._MayMonthValue = value;
+			}
+		}
+
+		// Token: 0x170002A5 RID: 677
+		// (get) Token: 0x0600058B RID: 1419 RVA: 0x00008140 File Offset: 0x00006540
+		// (set) Token: 0x0600058C RID: 1420 RVA: 0x00008154 File Offset: 0x00006554
+		public int MayReportingYear
+		{
+			get
+			{
+				return this._MayRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._MayRYear = value;
+			}
+		}
+
+		// Token: 0x170002A6 RID: 678
+		// (get) Token: 0x0600058D RID: 1421 RVA: 0x00008164 File Offset: 0x00006564
+		// (set) Token: 0x0600058E RID: 1422 RVA: 0x00008178 File Offset: 0x00006578
+		public string MayPerflevel
+		{
+			get
+			{
+				return this._MAYPerfLevel;
+			}
+			set
+			{
+				this._MAYPerfLevel = value;
+			}
+		}
+
+		// Token: 0x170002A7 RID: 679
+		// (get) Token: 0x0600058F RID: 1423 RVA: 0x00008184 File Offset: 0x00006584
+		// (set) Token: 0x06000590 RID: 1424 RVA: 0x00008198 File Offset: 0x00006598
+		public decimal? JUNPoints
+		{
+			get
+			{
+				return this._JUNPoints;
+			}
+			set
+			{
+				this._JUNModified = true;
+				this._JUNPoints = value;
+			}
+		}
+
+		// Token: 0x170002A8 RID: 680
+		// (get) Token: 0x06000591 RID: 1425 RVA: 0x000081A8 File Offset: 0x000065A8
+		// (set) Token: 0x06000592 RID: 1426 RVA: 0x000081BC File Offset: 0x000065BC
+		public string JunMonDesc
+		{
+			get
+			{
+				return this._JUNDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JUNDesc = value;
+			}
+		}
+
+		// Token: 0x170002A9 RID: 681
+		// (get) Token: 0x06000593 RID: 1427 RVA: 0x000081CC File Offset: 0x000065CC
+		// (set) Token: 0x06000594 RID: 1428 RVA: 0x000081E0 File Offset: 0x000065E0
+		public int JunMonthValue
+		{
+			get
+			{
+				return this._JUNMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JUNMonthValue = value;
+			}
+		}
+
+		// Token: 0x170002AA RID: 682
+		// (get) Token: 0x06000595 RID: 1429 RVA: 0x000081F0 File Offset: 0x000065F0
+		// (set) Token: 0x06000596 RID: 1430 RVA: 0x00008204 File Offset: 0x00006604
+		public int JunReportingYear
+		{
+			get
+			{
+				return this._JUNRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JUNRYear = value;
+			}
+		}
+
+		// Token: 0x170002AB RID: 683
+		// (get) Token: 0x06000597 RID: 1431 RVA: 0x00008214 File Offset: 0x00006614
+		// (set) Token: 0x06000598 RID: 1432 RVA: 0x00008228 File Offset: 0x00006628
+		public string JUNPerflevel
+		{
+			get
+			{
+				return this._JUNPerfLevel;
+			}
+			set
+			{
+				this._JUNPerfLevel = value;
+			}
+		}
+
+		// Token: 0x170002AC RID: 684
+		// (get) Token: 0x06000599 RID: 1433 RVA: 0x00008234 File Offset: 0x00006634
+		// (set) Token: 0x0600059A RID: 1434 RVA: 0x00008248 File Offset: 0x00006648
+		public decimal? JULPoints
+		{
+			get
+			{
+				return this._JULPoints;
+			}
+			set
+			{
+				this._JULModified = true;
+				this._JULPoints = value;
+			}
+		}
+
+		// Token: 0x170002AD RID: 685
+		// (get) Token: 0x0600059B RID: 1435 RVA: 0x00008258 File Offset: 0x00006658
+		// (set) Token: 0x0600059C RID: 1436 RVA: 0x0000826C File Offset: 0x0000666C
+		public string JulMonDesc
+		{
+			get
+			{
+				return this._JULDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JULDesc = value;
+			}
+		}
+
+		// Token: 0x170002AE RID: 686
+		// (get) Token: 0x0600059D RID: 1437 RVA: 0x0000827C File Offset: 0x0000667C
+		// (set) Token: 0x0600059E RID: 1438 RVA: 0x00008290 File Offset: 0x00006690
+		public int JULMonthValue
+		{
+			get
+			{
+				return this._JULMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JULMonthValue = value;
+			}
+		}
+
+		// Token: 0x170002AF RID: 687
+		// (get) Token: 0x0600059F RID: 1439 RVA: 0x000082A0 File Offset: 0x000066A0
+		// (set) Token: 0x060005A0 RID: 1440 RVA: 0x000082B4 File Offset: 0x000066B4
+		public int JULReportingYear
+		{
+			get
+			{
+				return this._JULRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._JULRYear = value;
+			}
+		}
+
+		// Token: 0x170002B0 RID: 688
+		// (get) Token: 0x060005A1 RID: 1441 RVA: 0x000082C4 File Offset: 0x000066C4
+		// (set) Token: 0x060005A2 RID: 1442 RVA: 0x000082D8 File Offset: 0x000066D8
+		public string JULPerflevel
+		{
+			get
+			{
+				return this._JULPerfLevel;
+			}
+			set
+			{
+				this._JULPerfLevel = value;
+			}
+		}
+
+		// Token: 0x170002B1 RID: 689
+		// (get) Token: 0x060005A3 RID: 1443 RVA: 0x000082E4 File Offset: 0x000066E4
+		// (set) Token: 0x060005A4 RID: 1444 RVA: 0x000082F8 File Offset: 0x000066F8
+		public decimal? AUGPoints
+		{
+			get
+			{
+				return this._AUGPoints;
+			}
+			set
+			{
+				this._AUGModified = true;
+				this._AUGPoints = value;
+			}
+		}
+
+		// Token: 0x170002B2 RID: 690
+		// (get) Token: 0x060005A5 RID: 1445 RVA: 0x00008308 File Offset: 0x00006708
+		// (set) Token: 0x060005A6 RID: 1446 RVA: 0x0000831C File Offset: 0x0000671C
+		public string AUGMonDesc
+		{
+			get
+			{
+				return this._AUGDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._AUGDesc = value;
+			}
+		}
+
+		// Token: 0x170002B3 RID: 691
+		// (get) Token: 0x060005A7 RID: 1447 RVA: 0x0000832C File Offset: 0x0000672C
+		// (set) Token: 0x060005A8 RID: 1448 RVA: 0x00008340 File Offset: 0x00006740
+		public int AUGMonthValue
+		{
+			get
+			{
+				return this._AUGMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._AUGMonthValue = value;
+			}
+		}
+
+		// Token: 0x170002B4 RID: 692
+		// (get) Token: 0x060005A9 RID: 1449 RVA: 0x00008350 File Offset: 0x00006750
+		// (set) Token: 0x060005AA RID: 1450 RVA: 0x00008364 File Offset: 0x00006764
+		public int AUGReportingYear
+		{
+			get
+			{
+				return this._AUGRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._AUGRYear = value;
+			}
+		}
+
+		// Token: 0x170002B5 RID: 693
+		// (get) Token: 0x060005AB RID: 1451 RVA: 0x00008374 File Offset: 0x00006774
+		// (set) Token: 0x060005AC RID: 1452 RVA: 0x00008388 File Offset: 0x00006788
+		public string AUGPerflevel
+		{
+			get
+			{
+				return this._AUGPerfLevel;
+			}
+			set
+			{
+				this._AUGPerfLevel = value;
+			}
+		}
+
+		// Token: 0x170002B6 RID: 694
+		// (get) Token: 0x060005AD RID: 1453 RVA: 0x00008394 File Offset: 0x00006794
+		// (set) Token: 0x060005AE RID: 1454 RVA: 0x000083A8 File Offset: 0x000067A8
+		public decimal? SEPPoints
+		{
+			get
+			{
+				return this._SEPPoints;
+			}
+			set
+			{
+				this._SEPModified = true;
+				this._SEPPoints = value;
+			}
+		}
+
+		// Token: 0x170002B7 RID: 695
+		// (get) Token: 0x060005AF RID: 1455 RVA: 0x000083B8 File Offset: 0x000067B8
+		// (set) Token: 0x060005B0 RID: 1456 RVA: 0x000083CC File Offset: 0x000067CC
+		public string SEPMonDesc
+		{
+			get
+			{
+				return this._SEPDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._SEPDesc = value;
+			}
+		}
+
+		// Token: 0x170002B8 RID: 696
+		// (get) Token: 0x060005B1 RID: 1457 RVA: 0x000083DC File Offset: 0x000067DC
+		// (set) Token: 0x060005B2 RID: 1458 RVA: 0x000083F0 File Offset: 0x000067F0
+		public int SEPMonthValue
+		{
+			get
+			{
+				return this._SEPMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._SEPMonthValue = value;
+			}
+		}
+
+		// Token: 0x170002B9 RID: 697
+		// (get) Token: 0x060005B3 RID: 1459 RVA: 0x00008400 File Offset: 0x00006800
+		// (set) Token: 0x060005B4 RID: 1460 RVA: 0x00008414 File Offset: 0x00006814
+		public int SEPReportingYear
+		{
+			get
+			{
+				return this._SEPRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._SEPRYear = value;
+			}
+		}
+
+		// Token: 0x170002BA RID: 698
+		// (get) Token: 0x060005B5 RID: 1461 RVA: 0x00008424 File Offset: 0x00006824
+		// (set) Token: 0x060005B6 RID: 1462 RVA: 0x00008438 File Offset: 0x00006838
+		public string SEPPerflevel
+		{
+			get
+			{
+				return this._SEPPerfLevel;
+			}
+			set
+			{
+				this._SEPPerfLevel = value;
+			}
+		}
+
+		// Token: 0x170002BB RID: 699
+		// (get) Token: 0x060005B7 RID: 1463 RVA: 0x00008444 File Offset: 0x00006844
+		// (set) Token: 0x060005B8 RID: 1464 RVA: 0x00008458 File Offset: 0x00006858
+		public decimal? OCTPoints
+		{
+			get
+			{
+				return this._OCTPoints;
+			}
+			set
+			{
+				this._OCTModified = true;
+				this._OCTPoints = value;
+			}
+		}
+
+		// Token: 0x170002BC RID: 700
+		// (get) Token: 0x060005B9 RID: 1465 RVA: 0x00008468 File Offset: 0x00006868
+		// (set) Token: 0x060005BA RID: 1466 RVA: 0x0000847C File Offset: 0x0000687C
+		public string OCTMonDesc
+		{
+			get
+			{
+				return this._OCTDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._OCTDesc = value;
+			}
+		}
+
+		// Token: 0x170002BD RID: 701
+		// (get) Token: 0x060005BB RID: 1467 RVA: 0x0000848C File Offset: 0x0000688C
+		// (set) Token: 0x060005BC RID: 1468 RVA: 0x000084A0 File Offset: 0x000068A0
+		public int OCTMonthValue
+		{
+			get
+			{
+				return this._OCTMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._OCTMonthValue = value;
+			}
+		}
+
+		// Token: 0x170002BE RID: 702
+		// (get) Token: 0x060005BD RID: 1469 RVA: 0x000084B0 File Offset: 0x000068B0
+		// (set) Token: 0x060005BE RID: 1470 RVA: 0x000084C4 File Offset: 0x000068C4
+		public int OCTReportingYear
+		{
+			get
+			{
+				return this._OCTRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._OCTRYear = value;
+			}
+		}
+
+		// Token: 0x170002BF RID: 703
+		// (get) Token: 0x060005BF RID: 1471 RVA: 0x000084D4 File Offset: 0x000068D4
+		// (set) Token: 0x060005C0 RID: 1472 RVA: 0x000084E8 File Offset: 0x000068E8
+		public string OCTPerflevel
+		{
+			get
+			{
+				return this._OCTPerfLevel;
+			}
+			set
+			{
+				this._OCTPerfLevel = value;
+			}
+		}
+
+		// Token: 0x170002C0 RID: 704
+		// (get) Token: 0x060005C1 RID: 1473 RVA: 0x000084F4 File Offset: 0x000068F4
+		// (set) Token: 0x060005C2 RID: 1474 RVA: 0x00008508 File Offset: 0x00006908
+		public decimal? NOVPoints
+		{
+			get
+			{
+				return this._NOVPoints;
+			}
+			set
+			{
+				this._NOVModified = true;
+				this._NOVPoints = value;
+			}
+		}
+
+		// Token: 0x170002C1 RID: 705
+		// (get) Token: 0x060005C3 RID: 1475 RVA: 0x00008518 File Offset: 0x00006918
+		// (set) Token: 0x060005C4 RID: 1476 RVA: 0x0000852C File Offset: 0x0000692C
+		public string NOVMonDesc
+		{
+			get
+			{
+				return this._NOVDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._NOVDesc = value;
+			}
+		}
+
+		// Token: 0x170002C2 RID: 706
+		// (get) Token: 0x060005C5 RID: 1477 RVA: 0x0000853C File Offset: 0x0000693C
+		// (set) Token: 0x060005C6 RID: 1478 RVA: 0x00008550 File Offset: 0x00006950
+		public int NOVMonthValue
+		{
+			get
+			{
+				return this._NOVMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._NOVMonthValue = value;
+			}
+		}
+
+		// Token: 0x170002C3 RID: 707
+		// (get) Token: 0x060005C7 RID: 1479 RVA: 0x00008560 File Offset: 0x00006960
+		// (set) Token: 0x060005C8 RID: 1480 RVA: 0x00008574 File Offset: 0x00006974
+		public int NOVReportingYear
+		{
+			get
+			{
+				return this._NOVRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._NOVRYear = value;
+			}
+		}
+
+		// Token: 0x170002C4 RID: 708
+		// (get) Token: 0x060005C9 RID: 1481 RVA: 0x00008584 File Offset: 0x00006984
+		// (set) Token: 0x060005CA RID: 1482 RVA: 0x00008598 File Offset: 0x00006998
+		public string NOVPerflevel
+		{
+			get
+			{
+				return this._NOVPerfLevel;
+			}
+			set
+			{
+				this._NOVPerfLevel = value;
+			}
+		}
+
+		// Token: 0x170002C5 RID: 709
+		// (get) Token: 0x060005CB RID: 1483 RVA: 0x000085A4 File Offset: 0x000069A4
+		// (set) Token: 0x060005CC RID: 1484 RVA: 0x000085B8 File Offset: 0x000069B8
+		public decimal? DECPoints
+		{
+			get
+			{
+				return this._DECPoints;
+			}
+			set
+			{
+				this._DECModified = true;
+				this._DECPoints = value;
+			}
+		}
+
+		// Token: 0x170002C6 RID: 710
+		// (get) Token: 0x060005CD RID: 1485 RVA: 0x000085C8 File Offset: 0x000069C8
+		// (set) Token: 0x060005CE RID: 1486 RVA: 0x000085DC File Offset: 0x000069DC
+		public string DECMonDesc
+		{
+			get
+			{
+				return this._DECDesc;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._DECDesc = value;
+			}
+		}
+
+		// Token: 0x170002C7 RID: 711
+		// (get) Token: 0x060005CF RID: 1487 RVA: 0x000085EC File Offset: 0x000069EC
+		// (set) Token: 0x060005D0 RID: 1488 RVA: 0x00008600 File Offset: 0x00006A00
+		public int DECMonthValue
+		{
+			get
+			{
+				return this._DECMonthValue;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._DECMonthValue = value;
+			}
+		}
+
+		// Token: 0x170002C8 RID: 712
+		// (get) Token: 0x060005D1 RID: 1489 RVA: 0x00008610 File Offset: 0x00006A10
+		// (set) Token: 0x060005D2 RID: 1490 RVA: 0x00008624 File Offset: 0x00006A24
+		public int DECReportingYear
+		{
+			get
+			{
+				return this._DECRYear;
+			}
+			set
+			{
+				this.SetBufferEdited();
+				this._DECRYear = value;
+			}
+		}
+
+		// Token: 0x170002C9 RID: 713
+		// (get) Token: 0x060005D3 RID: 1491 RVA: 0x00008634 File Offset: 0x00006A34
+		// (set) Token: 0x060005D4 RID: 1492 RVA: 0x00008648 File Offset: 0x00006A48
+		public string DECPerflevel
+		{
+			get
+			{
+				return this._DECPerfLevel;
+			}
+			set
+			{
+				this._DECPerfLevel = value;
+			}
+		}
+
+		// Token: 0x170002CA RID: 714
+		// (get) Token: 0x060005D5 RID: 1493 RVA: 0x00008654 File Offset: 0x00006A54
+		// (set) Token: 0x060005D6 RID: 1494 RVA: 0x00008668 File Offset: 0x00006A68
+		public IModificationIndicator.ModificationTypes JANModificationType
+		{
+			get
+			{
+				return this._JANbuffer;
+			}
+			set
+			{
+				this._JANbuffer = value;
+			}
+		}
+
+		// Token: 0x170002CB RID: 715
+		// (get) Token: 0x060005D7 RID: 1495 RVA: 0x00008674 File Offset: 0x00006A74
+		// (set) Token: 0x060005D8 RID: 1496 RVA: 0x00008688 File Offset: 0x00006A88
+		public IModificationIndicator.ModificationTypes FEBModificationType
+		{
+			get
+			{
+				return this._FEBbuffer;
+			}
+			set
+			{
+				this._FEBbuffer = value;
+			}
+		}
+
+		// Token: 0x170002CC RID: 716
+		// (get) Token: 0x060005D9 RID: 1497 RVA: 0x00008694 File Offset: 0x00006A94
+		// (set) Token: 0x060005DA RID: 1498 RVA: 0x000086A8 File Offset: 0x00006AA8
+		public IModificationIndicator.ModificationTypes MARModificationType
+		{
+			get
+			{
+				return this._MARbuffer;
+			}
+			set
+			{
+				this._MARbuffer = value;
+			}
+		}
+
+		// Token: 0x170002CD RID: 717
+		// (get) Token: 0x060005DB RID: 1499 RVA: 0x000086B4 File Offset: 0x00006AB4
+		// (set) Token: 0x060005DC RID: 1500 RVA: 0x000086C8 File Offset: 0x00006AC8
+		public IModificationIndicator.ModificationTypes APRModificationType
+		{
+			get
+			{
+				return this._APRbuffer;
+			}
+			set
+			{
+				this._APRbuffer = value;
+			}
+		}
+
+		// Token: 0x170002CE RID: 718
+		// (get) Token: 0x060005DD RID: 1501 RVA: 0x000086D4 File Offset: 0x00006AD4
+		// (set) Token: 0x060005DE RID: 1502 RVA: 0x000086E8 File Offset: 0x00006AE8
+		public IModificationIndicator.ModificationTypes MAYModificationType
+		{
+			get
+			{
+				return this._MAYbuffer;
+			}
+			set
+			{
+				this._MAYbuffer = value;
+			}
+		}
+
+		// Token: 0x170002CF RID: 719
+		// (get) Token: 0x060005DF RID: 1503 RVA: 0x000086F4 File Offset: 0x00006AF4
+		// (set) Token: 0x060005E0 RID: 1504 RVA: 0x00008708 File Offset: 0x00006B08
+		public IModificationIndicator.ModificationTypes JUNModificationType
+		{
+			get
+			{
+				return this._JUNbuffer;
+			}
+			set
+			{
+				this._JUNbuffer = value;
+			}
+		}
+
+		// Token: 0x170002D0 RID: 720
+		// (get) Token: 0x060005E1 RID: 1505 RVA: 0x00008714 File Offset: 0x00006B14
+		// (set) Token: 0x060005E2 RID: 1506 RVA: 0x00008728 File Offset: 0x00006B28
+		public IModificationIndicator.ModificationTypes JULModificationType
+		{
+			get
+			{
+				return this._JULbuffer;
+			}
+			set
+			{
+				this._JULbuffer = value;
+			}
+		}
+
+		// Token: 0x170002D1 RID: 721
+		// (get) Token: 0x060005E3 RID: 1507 RVA: 0x00008734 File Offset: 0x00006B34
+		// (set) Token: 0x060005E4 RID: 1508 RVA: 0x00008748 File Offset: 0x00006B48
+		public IModificationIndicator.ModificationTypes AUGModificationType
+		{
+			get
+			{
+				return this._AUGbuffer;
+			}
+			set
+			{
+				this._AUGbuffer = value;
+			}
+		}
+
+		// Token: 0x170002D2 RID: 722
+		// (get) Token: 0x060005E5 RID: 1509 RVA: 0x00008754 File Offset: 0x00006B54
+		// (set) Token: 0x060005E6 RID: 1510 RVA: 0x00008768 File Offset: 0x00006B68
+		public IModificationIndicator.ModificationTypes SEPModificationType
+		{
+			get
+			{
+				return this._SEPbuffer;
+			}
+			set
+			{
+				this._SEPbuffer = value;
+			}
+		}
+
+		// Token: 0x170002D3 RID: 723
+		// (get) Token: 0x060005E7 RID: 1511 RVA: 0x00008774 File Offset: 0x00006B74
+		// (set) Token: 0x060005E8 RID: 1512 RVA: 0x00008788 File Offset: 0x00006B88
+		public IModificationIndicator.ModificationTypes OCTModificationType
+		{
+			get
+			{
+				return this._OCTbuffer;
+			}
+			set
+			{
+				this._OCTbuffer = value;
+			}
+		}
+
+		// Token: 0x170002D4 RID: 724
+		// (get) Token: 0x060005E9 RID: 1513 RVA: 0x00008794 File Offset: 0x00006B94
+		// (set) Token: 0x060005EA RID: 1514 RVA: 0x000087A8 File Offset: 0x00006BA8
+		public IModificationIndicator.ModificationTypes NOVModificationType
+		{
+			get
+			{
+				return this._NOVbuffer;
+			}
+			set
+			{
+				this._NOVbuffer = value;
+			}
+		}
+
+		// Token: 0x170002D5 RID: 725
+		// (get) Token: 0x060005EB RID: 1515 RVA: 0x000087B4 File Offset: 0x00006BB4
+		// (set) Token: 0x060005EC RID: 1516 RVA: 0x000087C8 File Offset: 0x00006BC8
+		public IModificationIndicator.ModificationTypes DECModificationType
+		{
+			get
+			{
+				return this._DECbuffer;
+			}
+			set
+			{
+				this._DECbuffer = value;
+			}
+		}
+
+		// Token: 0x170002D6 RID: 726
+		// (get) Token: 0x060005ED RID: 1517 RVA: 0x000087D4 File Offset: 0x00006BD4
+		// (set) Token: 0x060005EE RID: 1518 RVA: 0x000087E8 File Offset: 0x00006BE8
+		public IModificationIndicator.ModificationTypes ModificationType
+		{
+			get
+			{
+				return this._buffer;
+			}
+			set
+			{
+				this._buffer = value;
+			}
+		}
+
+		// Token: 0x170002D7 RID: 727
+		// (get) Token: 0x060005EF RID: 1519 RVA: 0x000087F4 File Offset: 0x00006BF4
+		// (set) Token: 0x060005F0 RID: 1520 RVA: 0x00008808 File Offset: 0x00006C08
+		public string DataSeriesDescription
+		{
+			get
+			{
+				return this._DataSeriesDescription;
+			}
+			set
+			{
+				this._DataSeriesDescription = value;
+			}
+		}
+
+		// Token: 0x060005F1 RID: 1521 RVA: 0x00008814 File Offset: 0x00006C14
+		public object Clone()
+		{
+			return this.MemberwiseClone();
+		}
+
+		// Token: 0x170002D8 RID: 728
+		// (get) Token: 0x060005F2 RID: 1522 RVA: 0x00008828 File Offset: 0x00006C28
+		public bool Modified
+		{
+			get
+			{
+				return this._buffer != IModificationIndicator.ModificationTypes.NotModified;
+			}
+		}
+
+		// Token: 0x060005F3 RID: 1523 RVA: 0x00008844 File Offset: 0x00006C44
+		public void SetBufferModified()
+		{
+			if (this._buffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._buffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._JANbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._JANbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._FEBbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._FEBbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._MARbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._MARbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._APRbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._APRbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._MAYbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._MAYbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._JUNbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._JUNbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._JULbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._JULbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._AUGbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._AUGbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._SEPbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._SEPbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._OCTbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._OCTbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._NOVbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._NOVbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+			if (this._DECbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._DECbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005F4 RID: 1524 RVA: 0x00008924 File Offset: 0x00006D24
+		private void SetBufferEdited()
+		{
+			if (this._buffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._buffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005F5 RID: 1525 RVA: 0x00008938 File Offset: 0x00006D38
+		private void SetDECBufferEdited()
+		{
+			if (this._DECbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._DECbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005F6 RID: 1526 RVA: 0x0000894C File Offset: 0x00006D4C
+		public void SetJANBufferEdited()
+		{
+			if (this._JANbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._JANbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005F7 RID: 1527 RVA: 0x00008960 File Offset: 0x00006D60
+		private void SetFEBBufferEdited()
+		{
+			if (this._FEBbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._FEBbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005F8 RID: 1528 RVA: 0x00008974 File Offset: 0x00006D74
+		private void SetMARBufferEdited()
+		{
+			if (this._MARbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._MARbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005F9 RID: 1529 RVA: 0x00008988 File Offset: 0x00006D88
+		private void SetAPRBufferEdited()
+		{
+			if (this._APRbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._APRbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005FA RID: 1530 RVA: 0x0000899C File Offset: 0x00006D9C
+		private void SetMAYBufferEdited()
+		{
+			if (this._MAYbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._MAYbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005FB RID: 1531 RVA: 0x000089B0 File Offset: 0x00006DB0
+		private void SetJUNBufferEdited()
+		{
+			if (this._JUNbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._JUNbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005FC RID: 1532 RVA: 0x000089C4 File Offset: 0x00006DC4
+		private void SetJULBufferEdited()
+		{
+			if (this._JULbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._JULbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005FD RID: 1533 RVA: 0x000089D8 File Offset: 0x00006DD8
+		private void SetAUGBufferEdited()
+		{
+			if (this._AUGbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._AUGbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005FE RID: 1534 RVA: 0x000089EC File Offset: 0x00006DEC
+		private void SetSEPBufferEdited()
+		{
+			if (this._SEPbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._SEPbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x060005FF RID: 1535 RVA: 0x00008A00 File Offset: 0x00006E00
+		private void SetOCTBufferEdited()
+		{
+			if (this._OCTbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._OCTbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x06000600 RID: 1536 RVA: 0x00008A14 File Offset: 0x00006E14
+		private void SetNOVBufferEdited()
+		{
+			if (this._NOVbuffer == IModificationIndicator.ModificationTypes.NotModified)
+			{
+				this._NOVbuffer = IModificationIndicator.ModificationTypes.Edited;
+			}
+		}
+
+		// Token: 0x06000601 RID: 1537 RVA: 0x00008A28 File Offset: 0x00006E28
+		public void ClearBuffers()
+		{
+			this._buffer = IModificationIndicator.ModificationTypes.NotModified;
+		}
+
+		// Token: 0x04000254 RID: 596
+		private IModificationIndicator.ModificationTypes _buffer;
+
+		// Token: 0x04000255 RID: 597
+		private IModificationIndicator.ModificationTypes _DECbuffer;
+
+		// Token: 0x04000256 RID: 598
+		private IModificationIndicator.ModificationTypes _NOVbuffer;
+
+		// Token: 0x04000257 RID: 599
+		private IModificationIndicator.ModificationTypes _OCTbuffer;
+
+		// Token: 0x04000258 RID: 600
+		private IModificationIndicator.ModificationTypes _SEPbuffer;
+
+		// Token: 0x04000259 RID: 601
+		private IModificationIndicator.ModificationTypes _AUGbuffer;
+
+		// Token: 0x0400025A RID: 602
+		private IModificationIndicator.ModificationTypes _JULbuffer;
+
+		// Token: 0x0400025B RID: 603
+		private IModificationIndicator.ModificationTypes _JUNbuffer;
+
+		// Token: 0x0400025C RID: 604
+		private IModificationIndicator.ModificationTypes _MAYbuffer;
+
+		// Token: 0x0400025D RID: 605
+		private IModificationIndicator.ModificationTypes _APRbuffer;
+
+		// Token: 0x0400025E RID: 606
+		private IModificationIndicator.ModificationTypes _MARbuffer;
+
+		// Token: 0x0400025F RID: 607
+		public IModificationIndicator.ModificationTypes _FEBbuffer;
+
+		// Token: 0x04000260 RID: 608
+		public IModificationIndicator.ModificationTypes _JANbuffer;
+
+		// Token: 0x04000261 RID: 609
+		public bool _JANModified;
+
+		// Token: 0x04000262 RID: 610
+		public bool _FEBModified;
+
+		// Token: 0x04000263 RID: 611
+		public bool _MARModified;
+
+		// Token: 0x04000264 RID: 612
+		public bool _APRModified;
+
+		// Token: 0x04000265 RID: 613
+		public bool _MAYModified;
+
+		// Token: 0x04000266 RID: 614
+		public bool _JUNModified;
+
+		// Token: 0x04000267 RID: 615
+		public bool _JULModified;
+
+		// Token: 0x04000268 RID: 616
+		public bool _AUGModified;
+
+		// Token: 0x04000269 RID: 617
+		public bool _SEPModified;
+
+		// Token: 0x0400026A RID: 618
+		public bool _OCTModified;
+
+		// Token: 0x0400026B RID: 619
+		public bool _NOVModified;
+
+		// Token: 0x0400026C RID: 620
+		public bool _DECModified;
+
+		// Token: 0x0400027A RID: 634
+		private int? _dsID;
+
+		// Token: 0x0400027B RID: 635
+		private int _cID;
+
+		// Token: 0x0400027C RID: 636
+		private int? _dataSeries;
+
+		// Token: 0x0400027D RID: 637
+		private string _dsdesc;
+
+		// Token: 0x0400027E RID: 638
+		private int _formatID;
+
+		// Token: 0x0400027F RID: 639
+		private string _label;
+
+		// Token: 0x04000280 RID: 640
+		private string _changed;
+
+		// Token: 0x04000281 RID: 641
+		private string _created;
+
+		// Token: 0x04000282 RID: 642
+		private DateTime _date;
+
+		// Token: 0x04000283 RID: 643
+		private bool _show;
+
+		// Token: 0x04000284 RID: 644
+		private bool _showAsStack;
+
+		// Token: 0x04000285 RID: 645
+		private bool _active;
+
+		// Token: 0x04000286 RID: 646
+		private bool _line;
+
+		// Token: 0x04000287 RID: 647
+		private int _month;
+
+		// Token: 0x04000288 RID: 648
+		private decimal? _Y;
+
+		// Token: 0x04000289 RID: 649
+		private string _mondesc;
+
+		// Token: 0x0400028A RID: 650
+		private decimal? _JANPoints;
+
+		// Token: 0x0400028B RID: 651
+		private string _JANDesc;
+
+		// Token: 0x0400028C RID: 652
+		private int _JANMonthValue;
+
+		// Token: 0x0400028D RID: 653
+		private int _JANRYear;
+
+		// Token: 0x0400028E RID: 654
+		private string _JANComment;
+
+		// Token: 0x0400028F RID: 655
+		private string _JANPerfLevel;
+
+		// Token: 0x04000290 RID: 656
+		private decimal? _FEBPoints;
+
+		// Token: 0x04000291 RID: 657
+		private string _FEBDesc;
+
+		// Token: 0x04000292 RID: 658
+		private int _FEBMonthValue;
+
+		// Token: 0x04000293 RID: 659
+		private int _FEBRYear;
+
+		// Token: 0x04000294 RID: 660
+		private string _FEBComment;
+
+		// Token: 0x04000295 RID: 661
+		private string _FEBPerfLevel;
+
+		// Token: 0x04000296 RID: 662
+		private decimal? _MARPoints;
+
+		// Token: 0x04000297 RID: 663
+		private string _MARDesc;
+
+		// Token: 0x04000298 RID: 664
+		private int _MARMonthValue;
+
+		// Token: 0x04000299 RID: 665
+		private int _MARRYear;
+
+		// Token: 0x0400029A RID: 666
+		private string _MARPerfLevel;
+
+		// Token: 0x0400029B RID: 667
+		private decimal? _APRPoints;
+
+		// Token: 0x0400029C RID: 668
+		private string _APRDesc;
+
+		// Token: 0x0400029D RID: 669
+		private int _APRMonthValue;
+
+		// Token: 0x0400029E RID: 670
+		private int _APRRYear;
+
+		// Token: 0x0400029F RID: 671
+		private string _APRPerfLevel;
+
+		// Token: 0x040002A0 RID: 672
+		private decimal? _MAYPoints;
+
+		// Token: 0x040002A1 RID: 673
+		private string _MayDesc;
+
+		// Token: 0x040002A2 RID: 674
+		private int _MayMonthValue;
+
+		// Token: 0x040002A3 RID: 675
+		private int _MayRYear;
+
+		// Token: 0x040002A4 RID: 676
+		private string _MAYPerfLevel;
+
+		// Token: 0x040002A5 RID: 677
+		private decimal? _JUNPoints;
+
+		// Token: 0x040002A6 RID: 678
+		private string _JUNDesc;
+
+		// Token: 0x040002A7 RID: 679
+		private int _JUNMonthValue;
+
+		// Token: 0x040002A8 RID: 680
+		private int _JUNRYear;
+
+		// Token: 0x040002A9 RID: 681
+		private string _JUNPerfLevel;
+
+		// Token: 0x040002AA RID: 682
+		private decimal? _JULPoints;
+
+		// Token: 0x040002AB RID: 683
+		private string _JULDesc;
+
+		// Token: 0x040002AC RID: 684
+		private int _JULMonthValue;
+
+		// Token: 0x040002AD RID: 685
+		private int _JULRYear;
+
+		// Token: 0x040002AE RID: 686
+		private string _JULPerfLevel;
+
+		// Token: 0x040002AF RID: 687
+		private string _AUGDesc;
+
+		// Token: 0x040002B0 RID: 688
+		private int _AUGMonthValue;
+
+		// Token: 0x040002B1 RID: 689
+		private int _AUGRYear;
+
+		// Token: 0x040002B2 RID: 690
+		private decimal? _AUGPoints;
+
+		// Token: 0x040002B3 RID: 691
+		private string _AUGPerfLevel;
+
+		// Token: 0x040002B4 RID: 692
+		private string _SEPDesc;
+
+		// Token: 0x040002B5 RID: 693
+		private int _SEPMonthValue;
+
+		// Token: 0x040002B6 RID: 694
+		private int _SEPRYear;
+
+		// Token: 0x040002B7 RID: 695
+		private decimal? _SEPPoints;
+
+		// Token: 0x040002B8 RID: 696
+		private string _SEPPerfLevel;
+
+		// Token: 0x040002B9 RID: 697
+		private decimal? _OCTPoints;
+
+		// Token: 0x040002BA RID: 698
+		private string _OCTDesc;
+
+		// Token: 0x040002BB RID: 699
+		private int _OCTMonthValue;
+
+		// Token: 0x040002BC RID: 700
+		private int _OCTRYear;
+
+		// Token: 0x040002BD RID: 701
+		private string _OCTPerfLevel;
+
+		// Token: 0x040002BE RID: 702
+		private decimal? _NOVPoints;
+
+		// Token: 0x040002BF RID: 703
+		private string _NOVDesc;
+
+		// Token: 0x040002C0 RID: 704
+		private int _NOVMonthValue;
+
+		// Token: 0x040002C1 RID: 705
+		private int _NOVRYear;
+
+		// Token: 0x040002C2 RID: 706
+		private string _NOVPerfLevel;
+
+		// Token: 0x040002C3 RID: 707
+		private decimal? _DECPoints;
+
+		// Token: 0x040002C4 RID: 708
+		private string _DECDesc;
+
+		// Token: 0x040002C5 RID: 709
+		private int _DECMonthValue;
+
+		// Token: 0x040002C6 RID: 710
+		private int _DECRYear;
+
+		// Token: 0x040002C7 RID: 711
+		private string _DECPerfLevel;
+	}
+}
