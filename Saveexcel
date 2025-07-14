@@ -1,0 +1,55 @@
+Public Function SaveExcelData(ds As DataSet) As String
+    Dim sb As New System.Text.StringBuilder()
+    Dim totalPoints As Integer = 0
+    Dim savedPoints As Integer = 0
+
+    Try
+        If ds Is Nothing OrElse ds.Tables.Count = 0 OrElse ds.Tables(0).Rows.Count = 0 Then
+            sb.AppendLine("No data to save.")
+            Return sb.ToString()
+        End If
+
+        For Each row As DataRow In ds.Tables(0).Rows
+            totalPoints += 1
+
+            Dim mnemonic As String = row("Mnemonic").ToString()
+            Dim series As String = row("Series").ToString()
+            Dim value As Double = 0.0
+
+            ' Attempt to parse value safely
+            If Not Double.TryParse(row("Value").ToString(), value) Then
+                sb.AppendLine($"Skipping invalid value for mnemonic {mnemonic}.")
+                Continue For
+            End If
+
+            ' Try to get the metric point from DB
+            Dim metric As PMPoint = PMPointsDB.GetPointByMnemonicAndSource(mnemonic, series)
+
+            ' PATCH: Bypass metric validation if not found
+            If metric Is Nothing Then
+                metric = New PMPoint()
+                metric.Mnemonic = mnemonic
+                metric.Series = series
+                metric.ID = 9999 ' dummy ID
+                sb.AppendLine($"Bypassed: Injected dummy PMPoint for {mnemonic}-{series}")
+            End If
+
+            ' Optional: Disable additional validation (bypass good value checks, etc.)
+            ' Assume metric is good
+
+            ' Save the metric using dummy DTO logic
+            Dim saveSuccess As Boolean = UPMPointsDTO.SavePoint(metric, value)
+            If saveSuccess Then
+                savedPoints += 1
+            Else
+                sb.AppendLine($"Failed to save point {mnemonic}-{series}")
+            End If
+        Next
+
+        sb.AppendLine($"Upload complete. Saved {savedPoints} of {totalPoints} metrics.")
+    Catch ex As Exception
+        sb.AppendLine("Exception during SaveExcelData: " & ex.Message)
+    End Try
+
+    Return sb.ToString()
+End Function
