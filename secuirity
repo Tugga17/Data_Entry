@@ -1,52 +1,32 @@
-public static UPMPointsDTO GetUPMPointFromExcel(string chartID, int reportingYear, string pointDesc, string seriesDesc)
-		{
-			UPMPointsDTO upmpointsDTO = null;
-			SqlConnection sqlConnection = new SqlConnection(PerfMgDB.ConnectionString);
-			UPMPointsDTO upmpointsDTO3;
-			try
-			{
-				sqlConnection.Open();
-				string text = "dbo.usp_UPM_PointToUPMPoint_get";
-				SqlDataReader sqlDataReader = new SqlCommand(text, sqlConnection)
-				{
-					CommandType = CommandType.StoredProcedure,
-					Parameters = 
-					{
-						new SqlParameter("@ChartID", chartID),
-						new SqlParameter("@ReportingYear", reportingYear),
-						new SqlParameter("@DataSeriesDescription", seriesDesc),
-						new SqlParameter("@PointDescription", pointDesc)
-					}
-				}.ExecuteReader();
-				bool flag = sqlDataReader.Read();
-				if (flag)
-				{
-					upmpointsDTO = new UPMPointsDTO();
-					upmpointsDTO.C_ID = Conversions.ToInteger(sqlDataReader.GetValue(0));
-					upmpointsDTO.DS_ID = Conversions.ToInteger(sqlDataReader.GetValue(1));
-					upmpointsDTO.MetricID = Conversions.ToString(sqlDataReader.GetValue(2));
-					upmpointsDTO.PointsDescription = DBNullConversions.DBNullToText(RuntimeHelpers.GetObjectValue(sqlDataReader.GetValue(3)));
-					upmpointsDTO.MonthValue = Conversions.ToInteger(sqlDataReader.GetValue(4));
-					UPMPointsDTO upmpointsDTO2 = upmpointsDTO;
-					object obj = DBNullConversions.DBNullToNothing(RuntimeHelpers.GetObjectValue(sqlDataReader.GetValue(5)));
-					decimal? num;
-					upmpointsDTO2.YValue = ((obj != null) ? ((decimal?)obj) : num);
-					upmpointsDTO.ReportingYear = DBNullConversions.DBNullToText(RuntimeHelpers.GetObjectValue(sqlDataReader.GetValue(6)));
-				}
-				upmpointsDTO3 = upmpointsDTO;
-			}
-			catch (Exception ex)
-			{
-				throw new Exception(ex.Message);
-			}
-			finally
-			{
-				bool flag = sqlConnection.State == ConnectionState.Open;
-				if (flag)
-				{
-					sqlConnection.Close();
-				}
-				sqlConnection.Dispose();
-			}
-			return upmpointsDTO3;
-		}
+USE [PERFMGR]
+GO
+/****** Object:  StoredProcedure [dbo].[usp_UPM_PointToUPMPoint_get]    Script Date: 7/15/2025 4:51:00 PM ******/
+SET ANSI_NULLS ON
+GO
+SET QUOTED_IDENTIFIER ON
+GO
+
+ALTER PROCEDURE [dbo].[usp_UPM_PointToUPMPoint_get] 
+(@ChartID varchar(50) = 13172, 
+ @ReportingYear Integer = 2025,
+ @PointDescription varchar(50) = Jan,
+ @DataSeriesDescription varchar(50) = "MONTHLY")
+
+AS
+
+Select 	a.C_ID,
+	a.DS_ID,
+	c.Chart_ID,
+	a.Description,
+	a.Month,
+	a.Y, 
+	a.Reporting_Year
+from 	dbo.t_upm_points as a 
+Join dbo.t_upm_data_series as b on a.C_ID = b.C_ID and a.DS_ID = b.DS_ID
+JOIN dbo.t_UPM_Charts as c ON c.c_ID = b.c_ID
+where 	c.chart_id = @ChartID and 
+	a.reporting_Year = @ReportingYear and 
+	b.Description = @DataSeriesDescription and 
+	a.Description = @PointDescription
+
+RETURN
