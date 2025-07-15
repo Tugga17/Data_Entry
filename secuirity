@@ -30,3 +30,24 @@ where 	c.chart_id = @ChartID and
 	a.Description = @PointDescription
 
 RETURN
+
+USE [PERFMGR];
+GO
+
+SELECT 
+    a.C_ID,
+    a.DS_ID,
+    c.Chart_ID,
+    a.Description,
+    a.Month,
+    a.Y, 
+    a.Reporting_Year
+FROM dbo.t_upm_points AS a 
+JOIN dbo.t_upm_data_series AS b ON a.C_ID = b.C_ID AND a.DS_ID = b.DS_ID
+JOIN dbo.t_UPM_Charts AS c ON c.C_ID = b.C_ID
+WHERE 
+    c.chart_id = '13172' AND  -- Make sure this is a string if stored as varchar
+    a.reporting_Year = 2025 AND
+    b.Description = 'MONTHLY' AND
+    a.Description = 'Jan';
+
