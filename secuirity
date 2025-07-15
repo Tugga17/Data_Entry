@@ -1,31 +1,15 @@
-Private Function SaveExcelData(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As Integer
-    Dim i As Integer = 0
-    Dim db As New PMPointsDB
-    Dim badList As New List(Of UPMPointsDTO)
+Private Sub LogDtoContents(dto As UPMPointsDTO)
+    LogDebug("DTO Contents:")
+    LogDebug("  MetricID: " & dto.MetricID)
+    LogDebug("  DataSeriesDescription: " & dto.DataSeriesDescription)
+    LogDebug("  PointsDescription: " & dto.PointsDescription)
+    LogDebug("  Value: " & dto.oValue.ToString())
+    LogDebug("  ReportingYear: " & dto.ReportingYear.ToString())
+    LogDebug("  User: " & dto.User)
+    ' Add more fields as needed...
+End Sub
 
-    For Each dto As UPMPointsDTO In list
-        Try
-            LogDebug("Saving Metric: " & dto.MetricID)
-
-            db.SavePointsArchive(dto)
-            Dim j As Integer = db.SaveUPMPoints(dto)
-
-            If j = 1 Then
-                i += 1
-                LogDebug("✔️ Saved successfully.")
-            Else
-                LogDebug("❌ SaveUPMPoints returned 0 - Save failed for Metric: " & dto.MetricID)
-                badList.Add(dto)
-            End If
-        Catch ex As Exception
-            LogDebug("❌ EXCEPTION saving MetricID " & dto.MetricID)
-            LogDebug("    Error Message: " & ex.Message)
-            LogDebug("    Stack Trace: " & ex.StackTrace)
-            badList.Add(dto)
-        End Try
-    Next
-
-    LogDebug("Done saving. Successful uploads: " & i.ToString() & " / " & list.Count.ToString())
-    errorList = badList
-    Return i
-End Function
+For Each dto As UPMPointsDTO In list
+    Try
+        LogDtoContents(dto) ' ← Add this to inspect contents
+        ...
