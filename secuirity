@@ -1,56 +1,31 @@
-Private Function GetChartsUserPermission(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As List(Of UPMPointsDTO)
-    ' === TEMPORARY BYPASS FOR DEBUGGING ===
-    ' Uncomment the following line to bypass this check entirely:
-    ' Return list
-
-    Dim db As New SecurityVerificationDB
-    Dim permList As List(Of SecurityExcelPermissionsDTO) = db.GetSecurityExcel(Environment.UserName)
-    Console.WriteLine("DEBUG: Loaded permissions for user " & Environment.UserName)
-    Console.WriteLine("DEBUG: Permission entries: " & permList.Count.ToString())
-
-    Dim errorRows As New List(Of UPMPointsDTO)
+Private Function SaveExcelData(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As Integer
+    Dim i As Integer = 0
+    Dim db As New PMPointsDB
+    Dim badList As New List(Of UPMPointsDTO)
 
     For Each dto As UPMPointsDTO In list
-        Console.WriteLine("DEBUG: Checking metric " & dto.MetricID & " for " & dto.ChangedBy)
-        Dim foundPermission As Boolean = False
+        Try
+            LogDebug("Saving Metric: " & dto.MetricID)
 
-        For Each perm As SecurityExcelPermissionsDTO In permList
-            Console.WriteLine("    PERMISSION: Metric=" & perm.MetricID & ", CentrallyManaged=" & perm.CentrallyManaged & ", AllowTargetEdit=" & perm.AllowEditTargets)
+            db.SavePointsArchive(dto)
+            Dim j As Integer = db.SaveUPMPoints(dto)
 
-            If dto.MetricID = perm.MetricID Then
-                foundPermission = True
-
-                If perm.CentrallyManaged Then
-                    dto.ErrorMessage = "Metric is centrally managed and cannot be edited by users"
-                    errorRows.Add(dto)
-                    Console.WriteLine("    ❌ REJECTED: Centrally managed")
-                    Exit For
-                End If
-
-                ' Check for specific series permission if it's TARGET/MAXIMUM/MINIMUM
-                If dto.ChangedBy IsNot Nothing Then
-                    Dim editType As String = dto.ChangedBy.ToUpper()
-                    If (editType = "TARGET" OrElse editType = "MAXIMUM" OrElse editType = "MINIMUM") AndAlso Not perm.AllowEditTargets Then
-                        dto.ErrorMessage = "User not allowed to edit target/max/min values for this metric"
-                        errorRows.Add(dto)
-                        Console.WriteLine("    ❌ REJECTED: No permission to edit " & editType)
-                        Exit For
-                    End If
-                End If
-
-                ' PASSED
-                Console.WriteLine("    ✅ ACCEPTED")
-                Exit For
+            If j = 1 Then
+                i += 1
+                LogDebug("✔️ Saved successfully.")
+            Else
+                LogDebug("❌ SaveUPMPoints returned 0 - Save failed for Metric: " & dto.MetricID)
+                badList.Add(dto)
             End If
-        Next
-
-        If Not foundPermission Then
-            dto.ErrorMessage = "User does not have access to this metric"
-            errorRows.Add(dto)
-            Console.WriteLine("    ❌ REJECTED: No matching permission found")
-        End If
+        Catch ex As Exception
+            LogDebug("❌ EXCEPTION saving MetricID " & dto.MetricID)
+            LogDebug("    Error Message: " & ex.Message)
+            LogDebug("    Stack Trace: " & ex.StackTrace)
+            badList.Add(dto)
+        End Try
     Next
 
-    errorList.AddRange(errorRows)
-    Return list.Except(errorRows).ToList()
+    LogDebug("Done saving. Successful uploads: " & i.ToString() & " / " & list.Count.ToString())
+    errorList = badList
+    Return i
 End Function
