@@ -1,0 +1,477 @@
+Option Strict Off
+Imports System.Data.OleDb
+Imports Entergy.PerformanceManagement.PMDTO
+Imports Entergy.PerformanceManagement.PMDB
+Imports Telerik.WinControls.UI
+Imports Telerik.Data
+Imports Telerik.WinControls.UI.Export
+Imports NUnit.Framework.Constraints
+Imports Telerik.Charting.Styles
+
+
+
+Public Class ImportDUDE
+    Private _overwrite As Boolean = False
+    Private _failedMonthLocked As Boolean
+
+
+    Private Sub LogDebug(message As String)
+        Dim logPath As String = "C:\Temp\perfman_debug.log" ' change path if needed
+        Using writer As System.IO.StreamWriter = New System.IO.StreamWriter(logPath, True)
+            writer.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss") & " - " & message)
+        End Using
+    End Sub
+
+
+    Public Function ImportData(ByVal file As String) As String
+        Dim sb As New System.Text.StringBuilder
+        Dim i As Integer
+        Dim list As List(Of UPMPointsDTO)
+        Dim exList As List(Of UPMPointsDTO)
+        Dim errors As New List(Of UPMPointsDTO)
+        Dim beforeErrors As New List(Of UPMPointsDTO)
+        Dim db As New SecurityUsersDB
+        Dim totCount As Integer
+
+
+        _failedMonthLocked = False
+
+        LogDebug("Calling GetExcelData...")
+        exList = GetExcelData(file)
+        LogDebug("Excel rows loaded: " & exList.Count)
+        totCount = exList.Count
+
+
+
+        If Not _overwrite Then
+            LogDebug("Checking year lock...")
+            exList = Me.GetPointsNotLockedByYear(exList, beforeErrors)
+            LogDebug("Remaining after year check: " & exList.Count)
+            If beforeErrors.Count > 0 Then
+                sb.AppendLine()
+                sb.AppendLine(beforeErrors.Count & " of " & totCount & " records can not be imported because the year is locked by the system.")
+                sb.AppendLine("The following can not be imported due to the year's data begin locked by the system:")
+                sb.AppendLine(BuildErrorLog(beforeErrors))
+                If db.IsUserInMasterGroup(Environment.UserName) Then
+                    sb.AppendLine()
+                    sb.AppendLine("Please verify the data in the dude file is correct and check the Check box above and resubmit dude file.")
+                    _failedMonthLocked = True
+                End If
+                errors.Clear()
+            End If
+        End If
+        If Not _overwrite Then
+            exList = Me.GetPointsNotLockedByMonth(exList, beforeErrors)
+            If beforeErrors.Count > 0 Then
+                sb.AppendLine()
+                sb.AppendLine(beforeErrors.Count & " of " & totCount & " records can not be imported due the the month's data is locked by the system.")
+                sb.AppendLine("The following can not be imported due the the month's data is locked by the system:")
+                sb.AppendLine(BuildErrorLog(beforeErrors))
+                If db.IsUserInMasterGroup(Environment.UserName) Then
+                    sb.AppendLine()
+                    sb.AppendLine("Please verify the data in the dude file is correct and check the Check box above and resubmit dude file.")
+                    _failedMonthLocked = True
+                End If
+                errors.Clear()
+            End If
+        End If
+
+        LogDebug("Checking series lock...")
+        exList = Me.GetPointsNotLockedBySeries(exList, beforeErrors)
+        LogDebug("Remaining after series lock: " & exList.Count)
+        If beforeErrors.Count > 0 Then
+            sb.AppendLine()
+            sb.AppendLine(beforeErrors.Count & " of " & totCount & " records can not be imported due the the data series' data is locked by the system.")
+            sb.AppendLine("The following can not be imported due the the data series' data is locked by the system:")
+            sb.AppendLine(BuildErrorLog(beforeErrors))
+            errors.Clear()
+        End If
+
+
+        LogDebug("verifying points in db...")
+        list = Me.VerifyPointsInDB(exList, errors)
+        LogDebug("remaining after db verify: " & list.Count)
+        If errors.Count > 0 Then
+            sb.AppendLine()
+            sb.AppendLine(errors.Count & " of " & totCount & " records can not be imported since they are not valid points in the database.")
+            sb.AppendLine("the following are not valid points in the perfman database.")
+            sb.AppendLine(BuildErrorLog(errors))
+            errors.Clear()
+        End If
+
+        If Not db.IsUserInMasterGroup(Environment.UserName) Then
+            LogDebug("Checking user permissions...")
+            list = Me.GetChartsUserPermission(list, errors)
+            LogDebug("Remaining after permission check: " & list.Count)
+            If errors.Count > 0 Then
+                sb.AppendLine()
+                sb.AppendLine(errors.Count & " of " & totCount & " records can not be imported since you do not have permission to update the metrics.")
+                sb.AppendLine("You do not have permission to update the following metrics.")
+                sb.AppendLine(BuildErrorLog(errors))
+                errors.Clear()
+            End If
+        End If
+
+        LogDebug("Checking good values...")
+        list = Me.GetPointsWithGoodValues(list, errors)
+        LogDebug("Remaining after value check: " & list.Count)
+        If errors.Count > 0 Then
+            sb.AppendLine()
+            sb.AppendLine(errors.Count & " of " & totCount & " records can not be imported since they have point values which are non numeric.")
+            sb.AppendLine("The following metrics have point values which are non numeric.")
+            sb.AppendLine(BuildErrorLog(errors))
+            errors.Clear()
+        End If
+
+        'added ex in fron tof the list here
+
+        LogDebug("Saving data to DB...")
+        i = Me.SaveExcelData(list, errors)
+        LogDebug("Final saved count: " & i)
+        If errors.Count > 0 Then
+            sb.AppendLine()
+            sb.AppendLine(errors.Count & " of " & totCount & " records can not be imported since they are not valid metrics.")
+            sb.AppendLine("The following metrics are not valid metrics according to the Perfman Database.")
+            sb.AppendLine(BuildErrorLog(errors))
+            errors.Clear()
+        End If
+
+        LogDebug("=== ImportData complete ===")
+
+        sb.Insert(0, i.ToString & " of " & totCount & " Metrics saved sucessfully to the Perfman Database" & vbCrLf)
+        Return sb.ToString
+    End Function
+
+
+    Private Function GetExcelData(ByVal fileWithPath As String) As List(Of UPMPointsDTO)
+        Dim list As New List(Of UPMPointsDTO)
+        Dim dto As UPMPointsDTO
+        Dim reader As OleDbDataReader
+
+        Dim connString As String =
+      "Provider=Microsoft.ACE.OLEDB.12.0;" &
+      "Data Source=" & fileWithPath & ";" &
+      "Extended Properties=""Excel 12.0 Xml;HDR=YES;IMEX=1"";"
+
+        LogDebug("=== GetExcelData ===")
+        LogDebug(" File: " & fileWithPath)
+        LogDebug(" ConnStr: " & connString)
+
+        Using conn As New OleDbConnection(connString)
+            Try
+                conn.Open()
+                LogDebug(" Connection opened.")
+            Catch ex As Exception
+                LogDebug(" FAILED to open: " & ex.Message)
+                Throw
+            End Try
+
+            ' show us what tables (sheets/ranges) OleDb can see
+            Try
+                Dim schema = conn.GetOleDbSchemaTable(OleDbSchemaGuid.Tables, Nothing)
+                For Each r As DataRow In schema.Rows
+                    LogDebug(" OLEDB TABLE: " & r("TABLE_NAME"))
+                Next
+            Catch ex As Exception
+                LogDebug(" FAILED to list tables: " & ex.Message)
+            End Try
+
+            Dim sql As String = "SELECT * FROM [Perfman_Data$]"
+            LogDebug(" Executing SQL: " & sql)
+            Using cmd As New OleDbCommand(sql, conn)
+                reader = cmd.ExecuteReader()
+                Dim rowCount As Integer = 0
+
+                While reader.Read()
+                    rowCount += 1
+
+                    ' peel out each raw value
+                    Dim raw0 = reader.GetValue(0)
+                    Dim raw1 = reader.GetValue(1)
+                    Dim raw2 = reader.GetValue(2)
+                    Dim raw3 = reader.GetValue(3)
+                    Dim raw4 = reader.GetValue(4)
+
+
+                    LogDebug(
+                  String.Format(" Row {0}: 0='{1}', 1='{2}', 2='{3}', 3='{4}', 4='{5}'",
+                                rowCount,
+                                If(IsDBNull(raw0), "DBNull", raw0),
+                                If(IsDBNull(raw1), "DBNull", raw1),
+                                If(IsDBNull(raw2), "DBNull", raw2),
+                                If(IsDBNull(raw3), "DBNull", raw3),
+                                If(IsDBNull(raw4), "DBNull", raw4))
+                    )
+
+
+
+
+                    ' only skip if truly empty / deleted not from IsDBNULL
+                    'If NOT IsDBNull(raw3) AndAlso raw3.ToString().Trim() <> "" Then
+                    If Not IsDBNull(raw3) Then
+                        dto = New UPMPointsDTO With {
+                      .MetricID = raw0.ToString().Trim(),  'MetricID
+                      .DataSeriesDescription = raw1.ToString().Trim(),
+                      .PointsDescription = raw2.ToString().Trim(),
+                      .YValue = raw3.ToString().Trim(),
+                      .ReportingYear = raw4.ToString().Trim(),
+                      .UserID = Environment.UserName}
+
+
+                        list.Add(dto)
+                        LogDebug("  → Added to list")
+                    Else
+                        LogDebug("  ! Skipped because YValue (col 3) is empty/DBNull")
+                    End If
+                End While
+
+                LogDebug(" Rows read by reader: " & rowCount)
+            End Using
+        End Using
+
+        LogDebug(" Returning list.Count = " & list.Count)
+        Return list
+    End Function
+
+    Private Sub LogDtoContents(dto As UPMPointsDTO)
+        LogDebug("DTO Contents:")
+        LogDebug("  MetricID: " & dto.MetricID)
+        LogDebug("  DataSeriesDescription: " & dto.DataSeriesDescription)
+        LogDebug("  PointsDescription: " & dto.PointsDescription)
+
+        LogDebug("  ReportingYear: " & dto.ReportingYear.ToString())
+
+        ' Add more fields as needed...
+    End Sub
+
+
+    Private Function SaveExcelData(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As Integer
+        Dim i As Integer = 0
+        Dim db As New PMPointsDB
+        Dim badList As New List(Of UPMPointsDTO)
+
+        For Each dto As UPMPointsDTO In list
+            Try
+                LogDebug("Saving Metric: " & dto.MetricID)
+                LogDtoContents(dto)
+
+                db.SavePointsArchive(dto)
+                Dim j As Integer = db.SaveUPMPoints(dto)
+
+                If j = 1 Then
+                    i += 1
+                    LogDebug("✔️ Saved successfully.")
+                Else
+                    LogDebug("❌ SaveUPMPoints returned 0 - Save failed for Metric: " & dto.MetricID)
+                    badList.Add(dto)
+                End If
+            Catch ex As Exception
+                LogDebug("❌ EXCEPTION saving MetricID " & dto.MetricID)
+                LogDebug("    Error Message: " & ex.Message)
+                LogDebug("    Stack Trace: " & ex.StackTrace)
+                badList.Add(dto)
+            End Try
+        Next
+
+        LogDebug("Done saving. Successful uploads: " & i.ToString() & " / " & list.Count.ToString())
+        errorList = badList
+        Return i
+    End Function
+
+    Private Function VerifyPointsInDB(ByVal list As List(Of UPMPointsDTO), ByRef badlist As List(Of UPMPointsDTO)) As List(Of UPMPointsDTO)
+        Dim goodList As New List(Of UPMPointsDTO)
+        Dim dto As UPMPointsDTO
+        'Using dto.ChangedBy as the dataseries name for error logging purposes
+        Dim db As New PMPointsDB
+        For Each item As UPMPointsDTO In list
+            dto = db.GetUPMPointFromExcel(item.MetricID, item.ReportingYear, item.PointsDescription, item.DataSeriesDescription)
+            If IsNothing(dto) Then
+                dto = New UPMPointsDTO
+                dto.MetricID = item.MetricID 'metric id
+                dto.ReportingYear = item.ReportingYear
+                dto.PointsDescription = item.PointsDescription
+                dto.YValue = item.YValue
+                dto.ChangedBy = item.DataSeriesDescription
+                LogDebug("VerifyPointsInDB failed → " &
+             "MetricID: " & dto.MetricID & 'metric id
+             ", Series: " & dto.ChangedBy &
+             ", Point: " & dto.PointsDescription &
+             ", Year: " & dto.ReportingYear &
+             ",YValue: " & dto.YValue)
+                badlist.Add(dto)
+            Else
+                dto.YValue = item.YValue
+                dto.ChangedBy = item.DataSeriesDescription
+                goodList.Add(dto)
+            End If
+        Next
+        Return goodList
+    End Function
+
+    Private Function GetPointsWithGoodValues(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As List(Of UPMPointsDTO)
+        Dim badList As New List(Of UPMPointsDTO)
+        Dim goodList As New List(Of UPMPointsDTO)
+        For Each dto As UPMPointsDTO In list
+            If IsNumeric(dto.YValue) Then
+                goodList.Add(dto)
+            Else
+                badList.Add(dto)
+            End If
+        Next
+        errorList = badList
+        Return goodList
+    End Function
+    Private Function GetPointsNotLockedByYear(ByVal list As List(Of UPMPointsDTO), ByRef errorlist As List(Of UPMPointsDTO)) As List(Of UPMPointsDTO)
+        Dim badList As New List(Of UPMPointsDTO)
+        Dim goodList As New List(Of UPMPointsDTO)
+        Dim yearsLocked As List(Of String) = Me.CreateYearLocked
+        For Each dto As UPMPointsDTO In list
+            If Not yearsLocked.Contains(dto.ReportingYear) Then
+                goodList.Add(dto)
+            Else
+                badList.Add(dto)
+            End If
+        Next
+        errorlist = badList
+        Return goodList
+    End Function
+    Private Function GetPointsNotLockedByMonth(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As List(Of UPMPointsDTO)
+        Dim badList As New List(Of UPMPointsDTO)
+        Dim goodList As New List(Of UPMPointsDTO)
+        Dim monthsLocked As List(Of String) = Me.CreateMonthsLocked
+        For Each dto As UPMPointsDTO In list
+            If Not monthsLocked.Contains(dto.ReportingYear & dto.PointsDescription.ToUpper) Then
+                goodList.Add(dto)
+            Else
+                badList.Add(dto)
+            End If
+        Next
+        errorList = badList
+        Return goodList
+    End Function
+    Private Function GetPointsNotLockedBySeries(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As List(Of UPMPointsDTO)
+
+        Dim db As New SecurityLocksDB
+        Dim badList As New List(Of UPMPointsDTO)
+        Dim goodList As New List(Of UPMPointsDTO)
+        Dim seriesLocked As List(Of String) = db.GetSecurityLockSeries
+        For Each dto As UPMPointsDTO In list
+            If Not seriesLocked.Contains(dto.DataSeriesDescription) Then
+                goodList.Add(dto)
+            Else
+                badList.Add(dto)
+            End If
+        Next
+        errorList = badList
+        Return goodList
+    End Function
+
+    Private Function GetChartsUserPermission(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As List(Of UPMPointsDTO)
+        ' === TEMPORARY BYPASS FOR DEBUGGING ===
+        ' Uncomment the following line to bypass this check entirely:
+        ' Return list
+
+        Dim db As New SecurityVerificationDB
+        Dim permList As List(Of SecurityExcelPermissionsDTO) = db.GetSecurityExcel(Environment.UserName)
+        LogDebug("DEBUG: Loaded permissions for user " & Environment.UserName)
+        LogDebug("DEBUG: Permission entries: " & permList.Count.ToString())
+
+        Dim errorRows As New List(Of UPMPointsDTO)
+
+        For Each dto As UPMPointsDTO In list
+            LogDebug("DEBUG: Checking metric " & dto.MetricID & " for " & dto.ChangedBy)
+            Dim foundPermission As Boolean = False
+
+            For Each perm As SecurityExcelPermissionsDTO In permList
+                LogDebug("    PERMISSION: Metric=" & perm.MetricID & ", CentrallyManaged=" & perm.CentrallyManaged & ", AllowTargetEdit=" & perm.AllowEditTargets)
+
+                If dto.MetricID = perm.MetricID Then
+                    foundPermission = True
+
+                    If perm.CentrallyManaged Then
+                        LogDebug("Metric is centrally managed and cannot be edited by users")
+                        errorRows.Add(dto)
+                        LogDebug("    ❌ REJECTED: Centrally managed")
+                        Exit For
+                    End If
+
+                    ' Check for specific series permission if it's TARGET/MAXIMUM/MINIMUM
+                    If dto.ChangedBy IsNot Nothing Then
+                        Dim editType As String = dto.ChangedBy.ToUpper()
+                        If (editType = "TARGET" OrElse editType = "MAXIMUM" OrElse editType = "MINIMUM") AndAlso Not perm.AllowEditTargets Then
+                            LogDebug("User not allowed to edit target/max/min values for this metric")
+                            errorRows.Add(dto)
+                            LogDebug("    ❌ REJECTED: No permission to edit " & editType)
+                            Exit For
+                        End If
+                    End If
+
+                    ' PASSED
+                    LogDebug("    ✅ ACCEPTED")
+                    Exit For
+                End If
+            Next
+
+            If Not foundPermission Then
+                LogDebug("User does not have access to this metric")
+                errorRows.Add(dto)
+                LogDebug("    ❌ REJECTED: No matching permission found")
+            End If
+        Next
+
+        errorList.AddRange(errorRows)
+        Return list.Except(errorRows).ToList()
+    End Function
+    Private Function CreateYearLocked() As List(Of String)
+        Dim db As New PMLockYearDB
+        Dim yearsLocked As List(Of LockYearDTO) = db.GetLockedYear()
+        Dim list As New List(Of String)
+        For Each dto As LockYearDTO In yearsLocked
+            'If dto.Locked Then
+            list.Add(Convert.ToString(dto.Year))
+            'End If
+        Next
+        Return list
+    End Function
+    Private Function CreateMonthsLocked() As List(Of String)
+        Dim db As New SecurityLocksDB
+        Dim monthsLocked As List(Of SecurityLockMonthDTO) = db.GetSecurityLockMonth()
+        Dim list As New List(Of String)
+        For Each dto As SecurityLockMonthDTO In monthsLocked
+            If dto.Locked Then
+                If Not list.Contains(dto.ReportingYear & dto.ReportingPeriod) Then
+                    list.Add(dto.ReportingYear & dto.ReportingPeriod.ToUpper)
+                End If
+            End If
+        Next
+        Return list
+    End Function
+
+    Private Function BuildErrorLog(ByVal errors As List(Of UPMPointsDTO)) As String
+        Dim sb As New System.Text.StringBuilder
+        'Using dto.ChangedBy as the dataseries name for error logging purposes
+        sb.AppendLine("Year" & vbTab & "Chart ID" & vbTab & "Data Series" & vbTab & "Point" & vbTab & "Value")
+        For Each dto As UPMPointsDTO In errors
+            sb.AppendLine(dto.ReportingYear.ToString & vbTab & dto.MetricID & vbTab & dto.ChangedBy & vbTab & vbTab & dto.PointsDescription & vbTab & dto.YValue.ToString)
+        Next
+        Return sb.ToString
+    End Function
+
+
+    Private Function DBNulltoText(ByVal value As Object) As String
+        If IsDBNull(value) Then
+            Return String.Empty
+        Else
+            Return value.ToString
+        End If
+    End Function
+
+    Private Function DBNulltoZero(ByVal value As Object) As String
+        If IsDBNull(value) Then
+            Return Decimal.Zero
+        Else
+            Return value
+        End If
+    End Function
+
+End Class
