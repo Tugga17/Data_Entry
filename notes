@@ -1,0 +1,16 @@
+[Updates to app]
+\make new file that connects to keep code clean and seprate 
+
+-add a button to transform source files after transformation is complete 
+
+\the button is because not eveyrone will need to transform source files
+so the people wo are uploading to perfman will have the option to 
+
+-The button would trnasform the source files to match perfman file and then add the data to a master sheet\
+\when data is added it needs to be added to the same exact tab whihc will be named PerfMan_Data
+put a new line after every entry. The file can be overwritten everytime this process happens. 
+
+-upload custom file to perfmna logic can stay the same. The plan is to make the master sheet so u dont have to
+upload mutiple perfman dude files one at a time, but instead upload a master sheet. 
+
+-Add trnasformation to match the perfamn side
