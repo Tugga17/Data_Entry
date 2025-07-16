@@ -1,0 +1,47 @@
+import pandas as pd
+import os
+
+def transform_perfman_data(source_paths, output_path, sheet_name="PerfMan_Data"):
+    id_cols = ["Metric_ID", "DsDesc", "Year"]
+    month_cols = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+    master_df = pd.DataFrame()
+
+    for path in source_paths:
+        df = pd.read_excel(path)
+        if all(col in df.columns for col in id_cols + month_cols):
+            melted = pd.melt(df, id_vars=id_cols, value_vars=month_cols,
+                             var_name="Month", value_name="Point Value")
+            melted = melted.dropna(subset=["Point Value"])
+            master_df = pd.concat([master_df, melted], ignore_index=True)
+
+    # Save the master sheet with overwrite
+    master_df.to_excel(output_path, sheet_name=sheet_name, index=False)
+
+
+from tkinter import filedialog, messagebox
+from perfman_transformer import transform_perfman_data
+
+# Add Transform to PerfMan button
+transform_button = Button(window, text="Transform for PerfMan", command=run_perfman_transform)
+transform_button.grid(row=10, column=0, columnspan=2, pady=10)
+
+
+def run_perfman_transform():
+    source_paths = filedialog.askopenfilenames(title="Select Destination Files to Transform",
+                                               filetypes=[("Excel files", "*.xlsx")])
+    if not source_paths:
+        return
+
+    save_path = filedialog.asksaveasfilename(title="Save Master PerfMan Sheet As",
+                                             defaultextension=".xlsx",
+                                             filetypes=[("Excel files", "*.xlsx")])
+    if not save_path:
+        return
+
+    try:
+        transform_perfman_data(source_paths, save_path)
+        messagebox.showinfo("Success", f"PerfMan master sheet saved:\n{save_path}")
+    except Exception as e:
+        messagebox.showerror("Error", f"An error occurred:\n{e}")
