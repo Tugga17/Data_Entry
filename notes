@@ -21,3 +21,21 @@ def upload_files_safely(self):
         self.window.after(100, self.hide_loader)
 
 tk.Button(..., command=self.run_upload_threaded)
+
+
+def trigger_custom_perfman_upload(self):
+    from tkinter import Tk
+    root = Tk()
+    root.withdraw()  # Hide main window
+
+    excel_path = filedialog.askopenfilename(
+        title="Select Excel File to Upload to Perfman",
+        filetypes=[("Excel files", "*.xlsx *.xlsm *.xls")]
+    )
+
+    if excel_path:
+        threading.Thread(
+            target=run_perfman_uploader,
+            args=(excel_path,),
+            daemon=True
+        ).start()
