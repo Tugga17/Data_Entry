@@ -1,16 +1,23 @@
-[Updates to app]
-\make new file that connects to keep code clean and seprate 
+self.loader = ttk.Label(self.window, text="Uploading...", foreground="blue")
+self.loader.pack_forget()  # Hide it initially
 
--add a button to transform source files after transformation is complete 
+def show_loader(self):
+    self.loader.pack()
+    self.window.update_idletasks()
 
-\the button is because not eveyrone will need to transform source files
-so the people wo are uploading to perfman will have the option to 
+def hide_loader(self):
+    self.loader.pack_forget()
+    self.window.update_idletasks()
 
--The button would trnasform the source files to match perfman file and then add the data to a master sheet\
-\when data is added it needs to be added to the same exact tab whihc will be named PerfMan_Data
-put a new line after every entry. The file can be overwritten everytime this process happens. 
+def run_upload_threaded(self):
+    self.show_loader()
+    thread = threading.Thread(target=self.upload_files_safely)
+    thread.start()
 
--upload custom file to perfmna logic can stay the same. The plan is to make the master sheet so u dont have to
-upload mutiple perfman dude files one at a time, but instead upload a master sheet. 
+def upload_files_safely(self):
+    try:
+        self.upload_files()  # <- your actual upload logic here
+    finally:
+        self.window.after(100, self.hide_loader)
 
--Add trnasformation to match the perfamn side
+tk.Button(..., command=self.run_upload_threaded)
