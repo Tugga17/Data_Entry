@@ -1,44 +1,20 @@
-def run_perfman_uploader(excel_path, on_complete=None):
-    try:
-        # Your existing Perfman logic here...
-        subprocess.run(['PerfmanUploader.exe', excel_path], check=True)
-    except Exception as e:
-        print(f"Upload failed: {e}")
-    finally:
-        if on_complete:
-            on_complete()
+self.select_transform_button = tk.Button(frame, text="Select Transform Files", command=self.select_transform_files)
+self.select_transform_button.pack(pady=5)
 
-def trigger_custom_perfman_upload(self):
-    from tkinter import Tk
-    root = Tk()
-    root.withdraw()  # Hide unused window
+def select_transform_files(self):
+    files = filedialog.askopenfilenames(title="Select files to transform for PerfMan")
+    if not files:
+        return
+    # Transform the selected files
+    self.transform_for_perfman(file_paths=files)
 
-    excel_path = filedialog.askopenfilename(
-        title="Select Excel File to Upload to Perfman",
-        filetypes=[("Excel files", "*.xlsx *.xlsm *.xls")]
-    )
+def transform_for_perfman(self, file_paths=None):
+    if file_paths is None:
+        # Use previous destination files if no selection was made
+        file_paths = self.destination_file_paths
 
-    if excel_path:
-        self.upload_button.config(state='disabled')
-        self.start_spinner()
+    if not file_paths:
+        messagebox.showerror("No Files", "No destination files to transform.")
+        return
 
-        def on_upload_complete():
-            self.master.after(0, lambda: self.finish_upload_ui())
-
-        threading.Thread(
-            target=run_perfman_uploader,
-            args=(excel_path, on_upload_complete),
-            daemon=True
-        ).start()
-
-
-def start_spinner(self):
-    self.spinner_label.config(text="Uploading... ⏳")
-    self.spinner_label.update()
-
-def finish_upload_ui(self):
-    self.spinner_label.config(text="Upload complete ✅")
-    self.upload_button.config(state='normal')
-
-self.spinner_label = tk.Label(self.master, text="")
-self.spinner_label.pack()
+    # [Your transformation logic here using the files]
