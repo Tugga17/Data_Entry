@@ -1,0 +1,70 @@
+def transform_for_perfman(self, file_paths=None):
+    try:
+        import openpyxl
+        from openpyxl import Workbook, load_workbook
+
+        if file_paths is None:
+            file_paths = [dst_entry.get() for _, _, dst_entry, _ in self.transfer_rows]
+
+        if not file_paths:
+            messagebox.showerror("No Files", "No destination files to transform.")
+            return
+
+        master_file = "PerfMan_Master.xlsx"
+        perfman_headers = ["Metric_ID", "DsDesc", "Month", "Point Value", "Year"]
+        all_transformed_rows = [perfman_headers]
+
+        for file_path in file_paths:
+            matching_sheet_name = None
+            for _, _, dst_entry, sheet_entry in self.transfer_rows:
+                if dst_entry.get() == file_path:
+                    matching_sheet_name = sheet_entry.get()
+                    break
+
+            if not matching_sheet_name or not os.path.exists(file_path):
+                continue
+
+            wb = xw.Book(file_path)
+            sht = wb.sheets[matching_sheet_name]
+            data = sht.used_range.value
+            wb.close()
+
+            if not data:
+                continue
+
+            headers = data[0]
+            rows = data[1:]
+
+            col_index = {col: idx for idx, col in enumerate(headers)}
+            required = ["Metric_ID", "DsDesc", "Year"]
+            months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                      "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+            if not all(col in col_index for col in required):
+                continue
+
+            for row in rows:
+                for month in months:
+                    if month in col_index:
+                        point_val = row[col_index[month]] if col_index[month] < len(row) else ""
+                        if point_val not in ("", None):
+                            transformed = [
+                                row[col_index["Metric_ID"]],
+                                row[col_index["DsDesc"]],
+                                month,
+                                point_val,
+                                row[col_index["Year"]],
+                            ]
+                            all_transformed_rows.append(transformed)
+
+        # Write to master file (overwrite each full transformation session)
+        wb_master = Workbook()
+        ws = wb_master.active
+        ws.title = "PerfMan_Data"
+        for row in all_transformed_rows:
+            ws.append(row)
+
+        wb_master.save(master_file)
+        messagebox.showinfo("Done", f"{master_file} created with {len(all_transformed_rows) - 1} data rows.")
+    except Exception as e:
+        messagebox.showerror("Transformation Error", str(e))
