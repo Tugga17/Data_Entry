@@ -1,32 +1,17 @@
-self.loader = ttk.Label(self.window, text="Uploading...", foreground="blue")
-self.loader.pack_forget()  # Hide it initially
-
-def show_loader(self):
-    self.loader.pack()
-    self.window.update_idletasks()
-
-def hide_loader(self):
-    self.loader.pack_forget()
-    self.window.update_idletasks()
-
-def run_upload_threaded(self):
-    self.show_loader()
-    thread = threading.Thread(target=self.upload_files_safely)
-    thread.start()
-
-def upload_files_safely(self):
+def run_perfman_uploader(excel_path, on_complete=None):
     try:
-        self.upload_files()  # <- your actual upload logic here
+        # Your existing Perfman logic here...
+        subprocess.run(['PerfmanUploader.exe', excel_path], check=True)
+    except Exception as e:
+        print(f"Upload failed: {e}")
     finally:
-        self.window.after(100, self.hide_loader)
-
-tk.Button(..., command=self.run_upload_threaded)
-
+        if on_complete:
+            on_complete()
 
 def trigger_custom_perfman_upload(self):
     from tkinter import Tk
     root = Tk()
-    root.withdraw()  # Hide main window
+    root.withdraw()  # Hide unused window
 
     excel_path = filedialog.askopenfilename(
         title="Select Excel File to Upload to Perfman",
@@ -34,8 +19,26 @@ def trigger_custom_perfman_upload(self):
     )
 
     if excel_path:
+        self.upload_button.config(state='disabled')
+        self.start_spinner()
+
+        def on_upload_complete():
+            self.master.after(0, lambda: self.finish_upload_ui())
+
         threading.Thread(
             target=run_perfman_uploader,
-            args=(excel_path,),
+            args=(excel_path, on_upload_complete),
             daemon=True
         ).start()
+
+
+def start_spinner(self):
+    self.spinner_label.config(text="Uploading... ⏳")
+    self.spinner_label.update()
+
+def finish_upload_ui(self):
+    self.spinner_label.config(text="Upload complete ✅")
+    self.upload_button.config(state='normal')
+
+self.spinner_label = tk.Label(self.master, text="")
+self.spinner_label.pack()
