@@ -1,19 +1,24 @@
-Incentive Automation tool
-Before using the tool ensure that the spreadsheets you will be transferring data from are closed.
-Make sure the tool is locally on your computer. (Like on your desktop or downloads etc)
-Putting the app in a folder is recommended so that the save transfers and presets Json’s are in the same place
-It is also recommended to enable trusted documents on automate spreadsheets to quicken the process and limit human interaction
-•	Source, Destination, and Sheet
-The source will be the excel file you are transferring data from. By clicking source you will be able to open file explorer and select your file. Destination is the file data is being put into. It can be selected the same as source. The Sheet is the name of sheet. Sheet must be manually typed in and the sheet you are transferring data to and from need to share the same name.
-•	Save Transfer/Load Transfer
-Save transfer allows you to save the transfer you are currently on. Load transfer allows you to quickly load in the transfer you’ve made. Beware that saving another transfer will overwrite the transfer you have previously saved.
-•	Load From Saved Presets/Save New Preset
-Save new preset allows you to permanently save a set of transfers, name them, and load them later. They will be saved as an editable json to a preset folder wherever your tool is located. This is great for transfers that happen on a consistent basis and contains a lot.
-•	Enable Month Filtering 
-Allows to filter data by month. You must click the box next to the check mark to enable or disable month filtering. If you enable it and select a month and then disable it, the month you selected will still appear in the box. This does NOT mean that it is still filtering by month, it will only do that if the box next to the check mark is checked off. If month filtering is enabled it will copy everything over to the spread sheet Except the months after what was selected. When you select a month it will give you the data from January to that month. January is the baseline of the enable month filtering feature. 
-•	Add Another Transfer/Remove
-Add transfer allows you to add another transfer, and remove transfer allows you to remove a transfer.
-•	Run All Transfers
-Preforms the transfers.
+• Select Transform Files
+
+This allows you to manually select one or more files to transform into Perfman’s expected format. When selected, you can open File Explorer and pick the Excel file(s) you want. These files will be used to extract and organize data into a format that Perfman understands. This is helpful if you aren’t using the built-in transfer logic but still want to prepare files for upload.
+
+⸻
+
+• Transform for Perfman
+
+This button automatically transforms any files you’ve transferred using the tool. It takes the data from the Destination files of all successful transfers and reformats it to match the layout Perfman needs. The transformed data is saved to a master sheet that is generated automatically. Each time you run the transform, the sheet is overwritten with the latest results. You do not need to select any files manually for this — the tool handles everything based on the transfers you just ran.
+
+⸻
+
+• Transform Destination File
+
+If you prefer to select a single file (instead of running a full transfer first), this lets you manually choose a destination file and transform it on its own. This is useful for cases where you’ve already copied over data or are only transforming a partial dataset. Like with other transforms, the output is appended to the master file for Perfman upload.
+
+⸻
+
+• Upload Custom File to Perfman
+
+After transforming your files, this button sends the data from the master sheet directly into Perfman. You don’t need to select anything — the tool automatically pulls from the latest version of the Perfman master sheet. Once clicked, the tool will take care of the upload and notify you when it’s done. A spinning loader will appear at the bottom of the window while the upload is in progress.
+
 
 
