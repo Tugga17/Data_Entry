@@ -1,19 +1,37 @@
-matching_sheet_name = None
-# Try matching from transfer rows
-for _, _, dst_entry, sheet_entry in self.transfer_rows:
-    if dst_entry.get() == file_path:
-        matching_sheet_name = sheet_entry.get()
-        break
+def run_perfman_uploader(excel_path, on_complete=None):
+    try:
+        # Get path relative to the EXE or script
+        base_dir = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else __file__)
+        exe_path = os.path.join(base_dir, "PerfmanUploader", "bin", "x86", "Debug", "net48", "PerfmanUploader.exe")
 
-# If not found, ask user
-if not matching_sheet_name:
-    matching_sheet_name = simpledialog.askstring(
-        "Sheet Name Required",
-        f"Enter sheet name for file:\n{os.path.basename(file_path)}"
-    )
+        env = os.environ.copy()
+        env["TEMP"] = r"C:\Temp"
+        env["TMP"] = r"C:\Temp"
 
-# Skip if still not found or file doesn't exist
-if not matching_sheet_name or not os.path.exists(file_path):
-    continue
+        # Prevent command window from appearing
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
 
-          
+        process = subprocess.Popen(
+            [exe_path, excel_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env,
+            startupinfo=startupinfo,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        )
+        stdout, stderr = process.communicate()
+
+        out_text = stdout.decode().strip()
+        err_text = stderr.decode().strip()
+
+        if process.returncode == 0:
+            messagebox.showinfo("Process Finished", f"\n\n{out_text}")
+        else:
+            messagebox.showerror("Upload Error", f"Error:\n\n{err_text or out_text}")
+
+    except Exception as e:
+        messagebox.showerror("Execution Error", f"Failed to run uploader:\n{str(e)}")
+    finally:
+        if on_complete:
+            on_complete()
