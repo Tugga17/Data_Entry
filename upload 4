@@ -38,7 +38,7 @@ def run_perfman_uploader(excel_path, on_complete=None):
 
             # Display result
             if process.returncode == 0:
-                messagebox.showinfo("Success", f"Upload succeeded:\n\n{out_text}")
+                messagebox.showinfo("Process Finished", f"\n\n{out_text}")
             else:
                 messagebox.showerror("Upload Error", f"Error:\n\n{err_text or out_text}")
         except Exception as e:
@@ -79,24 +79,38 @@ class ExcelTransferApp:
         #self.main_frame = tk.Frame(self.root)
         #self.main_frame.pack(padx=10, pady=10)
 
-        # === Scrollable area for transfer rows ===
-        scroll_canvas = tk.Canvas(self.root, height=250)  # you can increase height if needed
-        scroll_frame = tk.Frame(scroll_canvas)
-        scrollbar = tk.Scrollbar(self.root, orient="vertical", command=scroll_canvas.yview)
-        scroll_canvas.configure(yscrollcommand=scrollbar.set)
+        # === Scrollable and Centered Transfer Section ===
+        scroll_container = tk.Frame(self.root)
+        scroll_container.pack(fill="both", expand=True)
 
+        self.canvas = tk.Canvas(scroll_container, highlightthickness=0)
+        self.canvas.pack(side="left", fill="both", expand=True)
+
+        scrollbar = ttk.Scrollbar(scroll_container, orient="vertical", command=self.canvas.yview)
         scrollbar.pack(side="right", fill="y")
-        scroll_canvas.pack(side="left", fill="both", expand=True)
-        canvas_window = scroll_canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Create an internal frame and center it inside the canvas
+        self.scrollable_frame = tk.Frame(self.canvas)
+        self.center_frame = tk.Frame(self.scrollable_frame)  # <-- This is the centering frame
+        self.center_frame.pack(anchor="center")
+
+        canvas_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
         def on_frame_configure(event):
-            scroll_canvas.configure(scrollregion=scroll_canvas.bbox("all"))
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
 
-        scroll_frame.bind("<Configure>", on_frame_configure)
-        scroll_canvas.bind_all("<MouseWheel>",
-                               lambda event: scroll_canvas.yview_scroll(int(-1 * (event.delta / 120)), "units"))
+        self.scrollable_frame.bind("<Configure>", on_frame_configure)
 
-        self.main_frame = scroll_frame  # Use scroll_frame as your main_frame
+        def on_canvas_resize(event):
+            # Always resize canvas window width to canvas
+            canvas_width = event.width
+            self.canvas.itemconfig(canvas_window, width=canvas_width)
+
+        self.canvas.bind("<Configure>", on_canvas_resize)
+
+        self.main_frame = self.center_frame  # <- you pack all transfer UI into this
 
         self.add_transfer_row() # Add default row
 
@@ -104,18 +118,18 @@ class ExcelTransferApp:
         #loading icon
         #self.loader = ttk.Label(self.root, text="Uploading...", foreground="blue")
         #self.loader.pack_forget()  # Hide it initially
-        self.spinner_label = tk.Label(self.root, text="")
-        self.spinner_label.pack()
+        #self.spinner_label = tk.Label(self.root, text="")
+        #self.spinner_label.pack()
 
         # Manual Save/Load (for quick reuse, always overwrites saved_transfers.json)
         #tk.Button(self.root, text="💾 Save Transfers", command=self.save_transfers).pack(pady=2)
         #tk.Button(self.root, text="📂 Load Transfers", command=self.load_transfers).pack(pady=2)
 
 
-        self.select_transform_button = tk.Button(root, text="Select Transform Files", command=self.select_transform_files)
+        self.select_transform_button = tk.Button(root, text="Select Files to Transform", command=self.select_transform_files)
         self.select_transform_button.pack(pady=5)
 
-        tk.Button(self.root, text="🔁 Transform for Perfman", command=self.transform_for_perfman).pack(pady=5)
+        tk.Button(self.root, text="🔁 Transform Destination Files", command=self.transform_for_perfman).pack(pady=5)
 
         #temp button for testing perfman upload
         self.custom_upload_button = tk.Button(root, text="Upload Custom File to Perfman", command=self.trigger_custom_perfman_upload)
@@ -151,7 +165,18 @@ class ExcelTransferApp:
 
         # Status label for showing progress
         self.log_text = tk.StringVar()
-        tk.Label(self.root, textvariable=self.log_text, fg="blue").pack(pady=(0, 10))
+        self.log_label = tk.Label(self.root, textvariable=self.log_text, fg="blue")
+        self.log_label.pack(pady=(0, 10))
+
+        self.spinner_text = tk.StringVar()
+        self.spinner_label = tk.Label(self.root, textvariable=self.spinner_text, fg="blue")
+        self.spinner_label.pack(pady=(0, 10))
+
+        #tk.Label(self.root, textvariable=self.log_text, fg="blue").pack(pady=(0, 10))
+
+        self.scrollable_frame.bind("<Enter>", lambda e: self.canvas.bind_all("<MouseWheel>", self._on_mousewheel))
+        self.scrollable_frame.bind("<Leave>", lambda e: self.canvas.unbind_all("<MouseWheel>"))
+
 
     def toggle_month_dropdown(self):
         """Enables/disables the month dropdown based on checkbox"""
@@ -194,12 +219,11 @@ class ExcelTransferApp:
             ).start()
 
     def start_spinner(self):
-        self.spinner_label.config(text="Uploading... ⏳")
+        self.spinner_text.set("Uploading... ⏳")
         self.spinner_label.update()
 
-
     def finish_upload_ui(self):
-        self.spinner_label.config(text="Upload complete ✅")
+        self.spinner_text.set("Upload complete ✅")
         self.custom_upload_button.config(state='normal')
 
     # Adds a new row of inputs (source, destination, sheet name)
@@ -525,6 +549,9 @@ class ExcelTransferApp:
             messagebox.showinfo("Done", f"{master_file} created with {len(all_transformed_rows) - 1} data rows.")
         except Exception as e:
             messagebox.showerror("Transformation Error", str(e))
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
 
 
 
