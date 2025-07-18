@@ -1,0 +1,28 @@
+# === Scrollable Frame for Transfer Rows ===
+canvas_frame = tk.Frame(self.root)
+canvas_frame.pack(padx=10, pady=10, fill="both", expand=False)
+
+self.canvas = tk.Canvas(canvas_frame, height=200)
+self.canvas.pack(side="left", fill="both", expand=True)
+
+scrollbar = ttk.Scrollbar(canvas_frame, orient="vertical", command=self.canvas.yview)
+scrollbar.pack(side="right", fill="y")
+
+self.scrollable_frame = tk.Frame(self.canvas)
+self.scrollable_frame.bind(
+    "<Configure>",
+    lambda e: self.canvas.configure(
+        scrollregion=self.canvas.bbox("all")
+    )
+)
+
+self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+self.canvas.configure(yscrollcommand=scrollbar.set)
+
+self.main_frame = self.scrollable_frame  # Keep the same naming for compatibility
+
+self.scrollable_frame.bind("<Enter>", lambda e: self.canvas.bind_all("<MouseWheel>", self._on_mousewheel))
+self.scrollable_frame.bind("<Leave>", lambda e: self.canvas.unbind_all("<MouseWheel>"))
+
+def _on_mousewheel(self, event):
+    self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
