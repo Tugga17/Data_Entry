@@ -1,35 +1,14 @@
-        # === Scrollable and Centered Transfer Section ===
-        scroll_container = tk.Frame(self.root)
-        scroll_container.pack(fill="both", expand=True)
+self.log_label = tk.Label(self.root, textvariable=self.log_text, fg="blue")
+self.log_label.pack(pady=(0, 10))
 
-        self.canvas = tk.Canvas(scroll_container, highlightthickness=0)
-        self.canvas.pack(side="left", fill="both", expand=True)
+self.spinner_text = tk.StringVar()
+self.spinner_label = tk.Label(self.root, textvariable=self.spinner_text, fg="blue")
+self.spinner_label.pack(pady=(0, 10))
 
-        scrollbar = ttk.Scrollbar(scroll_container, orient="vertical", command=self.canvas.yview)
-        scrollbar.pack(side="right", fill="y")
+def start_spinner(self):
+    self.spinner_text.set("Uploading... ⏳")
+    self.spinner_label.update()
 
-        self.canvas.configure(yscrollcommand=scrollbar.set)
-
-        # Create an internal frame and center it inside the canvas
-        self.scrollable_frame = tk.Frame(self.canvas)
-        self.center_frame = tk.Frame(self.scrollable_frame)  # <-- This is the centering frame
-        self.center_frame.pack(anchor="center")
-
-        canvas_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
-
-        def on_frame_configure(event):
-            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-        self.scrollable_frame.bind("<Configure>", on_frame_configure)
-
-        def on_canvas_resize(event):
-            # Always resize canvas window width to canvas
-            canvas_width = event.width
-            self.canvas.itemconfig(canvas_window, width=canvas_width)
-        self.canvas.bind("<Configure>", on_canvas_resize)
-
-        self.main_frame = self.center_frame  # <- you pack all transfer UI into this
-self.scrollable_frame.bind("<Enter>", lambda e: self.canvas.bind_all("<MouseWheel>", self._on_mousewheel))
-self.scrollable_frame.bind("<Leave>", lambda e: self.canvas.unbind_all("<MouseWheel>"))
-
-def _on_mousewheel(self, event):
-    self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+def finish_upload_ui(self):
+    self.spinner_text.set("Upload complete ✅")
+    self.custom_upload_button.config(state='normal')
