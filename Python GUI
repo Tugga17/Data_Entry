@@ -18,13 +18,15 @@ def resource_path(relative_path):
 
 def run_perfman_uploader(excel_path, on_complete=None):
     try:
-        exe_path = r"C:\Users\tbarth2@entergy.com\Downloads\PerfmanUploader\bin\x86\Debug\net48\PerfmanUploader.exe"
+        exe_path = r"C:\Users\tbarth2@entergy.com\Desktop\Incentive Automation Tool Prod\PerfmanUploader\bin\x86\Debug\net48\PerfmanUploader.exe"
+
 
         #exe_path = os.path.join(os.path.dirname(sys.executable), "PerfmanUploader", "PerfmanUploader.exe")
 
         env = os.environ.copy()
         env["TEMP"] = r"C:\Temp"
         env["TMP"] = r"C:\Temp"
+        
 
         try:
             process = subprocess.Popen(
@@ -56,7 +58,7 @@ def run_perfman_uploader(excel_path, on_complete=None):
 class ExcelTransferApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Incentives Automation Tool")
+        self.root.title("Dude Automation Tool")
         self.transfer_rows = []
         self.destination_file_paths = []
 
@@ -78,14 +80,21 @@ class ExcelTransferApp:
         except Exception:
             pass # Fail silently if logo isn't available
 
-        tk.Label(top_frame, text="Incentives Automation Tool", font=("Helvetica", 14, "bold")).pack(side="left")
+        tk.Label(top_frame, text="DUDE Automation Tool", font=("Helvetica", 14, "bold")).pack(side="left")
 
         # Main container for all transfer rows
         #self.main_frame = tk.Frame(self.root)
         #self.main_frame.pack(padx=10, pady=10)
 
         # === Scrollable and Centered Transfer Section ===
-        scroll_container = tk.Frame(self.root)
+        #scroll_container = tk.Frame(self.root)
+        #scroll_container.pack(fill="both", expand=True)
+        # === Scrollable and Centered Transfer Section with Border ===
+        scroll_wrapper = tk.LabelFrame(self.root, text="Transfer Section", padx=5, pady=5,
+                                       font=("Helvetica", 10, "bold"))
+        scroll_wrapper.pack(fill="both", expand=True, padx=10, pady=5)
+
+        scroll_container = tk.Frame(scroll_wrapper)
         scroll_container.pack(fill="both", expand=True)
 
         self.canvas = tk.Canvas(scroll_container, highlightthickness=0)
@@ -125,6 +134,7 @@ class ExcelTransferApp:
         #self.loader.pack_forget()  # Hide it initially
         #self.spinner_label = tk.Label(self.root, text="")
         #self.spinner_label.pack()
+
 
         # Manual Save/Load (for quick reuse, always overwrites saved_transfers.json)
         #tk.Button(self.root, text="💾 Save Transfers", command=self.save_transfers).pack(pady=2)
@@ -251,6 +261,10 @@ class ExcelTransferApp:
         self.scrollable_frame.bind("<Enter>", lambda e: self.canvas.bind_all("<MouseWheel>", self._on_mousewheel))
         self.scrollable_frame.bind("<Leave>", lambda e: self.canvas.unbind_all("<MouseWheel>"))
 
+    def on_close(self):
+        self.root.destroy()
+        os._exit(0)
+
 
     def toggle_month_dropdown(self):
         """Enables/disables the month dropdown based on checkbox"""
@@ -292,6 +306,8 @@ class ExcelTransferApp:
                 daemon=True
             ).start()
 
+
+
     def start_spinner(self):
         self.spinner_text.set("Uploading... ⏳")
         self.spinner_label.update()
@@ -299,6 +315,7 @@ class ExcelTransferApp:
     def finish_upload_ui(self):
         self.spinner_text.set("Upload complete ✅")
         self.custom_upload_button.config(state='normal')
+        self.progress_var.set(100)
 
     # Adds a new row of inputs (source, destination, sheet name)
     def add_transfer_row(self, source="", destination="", sheet="Sheet1"):
@@ -365,8 +382,11 @@ class ExcelTransferApp:
 
     def transfer_data(self, source_file, destination_file, sheet_name):
         """Handles optional month-filtered YTD data transfer with extra columns"""
-
+        # wb_src = xw.Book(source_file)
         try:
+
+
+
             wb_src = xw.Book(source_file)
             sht_src = wb_src.sheets[sheet_name]
             wb_src.api.RefreshAll()
@@ -418,7 +438,9 @@ class ExcelTransferApp:
                 final_data.append(new_row)
 
             # Paste to destination
-            wb_dest = xw.Book(destination_file)
+            app_dest = xw.App(visible=False)
+            wb_dest = app_dest.books.open(destination_file)
+            #wb_dest = xw.Book(destination_file)
             sht_dest = wb_dest.sheets[sheet_name]
             sht_dest.clear_contents()
             print("Rows in final_data:", len(final_data))
@@ -427,7 +449,11 @@ class ExcelTransferApp:
 
             wb_dest.save()
             wb_dest.close()
+
+
             wb_src.close()
+            app_dest.quit()
+
 
         except Exception as e:
             messagebox.showerror("Transfer Error", f"{source_file} → {destination_file}\n\n{str(e)}")
@@ -554,7 +580,7 @@ class ExcelTransferApp:
                 messagebox.showerror("No Files", "No destination files to transform.")
                 return
 
-            master_file = "../../PyCharmMiscProject/PerfMan_Master.xlsx"
+            master_file = "PerfMan_Master.xlsx"
             perfman_headers = ["Metric_ID", "DsDesc", "Month", "Point Value", "Year"]
             all_transformed_rows = [perfman_headers]
 
@@ -579,10 +605,14 @@ class ExcelTransferApp:
                 if not matching_sheet_name or not os.path.exists(file_path):
                     continue
 
-                wb = xw.Book(file_path)
+                #wb = xw.Book(file_path)
+                app = xw.App(visible=False)
+                wb = app.books.open(file_path)
                 sht = wb.sheets[matching_sheet_name]
                 data = sht.used_range.value
                 wb.close()
+                app.quit()
+
 
                 if not data:
                     continue
@@ -633,6 +663,8 @@ class ExcelTransferApp:
 # === Run the app ===
 if __name__ == "__main__":
     root = tk.Tk()
+    root.state('zoomed')
     app = ExcelTransferApp(root)
+    root.protocol("WM_DELETE_WINDOW", app.on_close)
     root.mainloop()
 
