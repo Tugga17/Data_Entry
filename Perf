@@ -1,31 +1,17 @@
-preset_frame = tk.Frame(self.root)
-preset_frame.pack(pady=5)
+# Preset save/load section
+preset_control_frame = tk.LabelFrame(self.root, text='Load from Saved Presets', font=("Helvetica", 10))
+preset_control_frame.pack(pady=5)
 
-tk.Button(preset_frame, text="Save New Preset", command=self.save_new_preset).pack(side="left", padx=2)
-tk.Button(preset_frame, text="Load From Saved Presets", command=self.load_from_saved_presets).pack(side="left", padx=2)
+self.preset_var = tk.StringVar()
+self.preset_menu = tk.OptionMenu(preset_control_frame, self.preset_var, "", command=self.load_preset)
+self.preset_menu.config(width=25)
+self.preset_menu.grid(row=0, column=0, padx=5)
+
+tk.Button(preset_control_frame, text="💽 Save New Preset", command=self.save_preset).grid(row=0, column=1, padx=5)
+
 tk.Button(
-    preset_frame,
+    preset_control_frame,
     text="?",
-    command=lambda: messagebox.showinfo(
-        "Help",
-        "Save New Preset lets you permanently store a group of transfers under a custom name. "
-        "Load From Saved Presets lets you quickly reload those saved presets from a list. "
-        "Presets are saved as editable .json files in the tool's Presets folder."
-    ),
+    command=lambda: messagebox.showinfo("Help", "Save a group of transfers as a preset to reuse them later. Presets are saved in the /presets folder and are named by you. Loading a preset will replace your current transfers."),
     width=2
-).pack(side="left", padx=4)
-
-run_frame = tk.Frame(self.root)
-run_frame.pack(pady=5)
-
-tk.Button(run_frame, text="Run All Transfers", command=self.run_all_transfers).pack(side="left")
-tk.Button(
-    run_frame,
-    text="?",
-    command=lambda: messagebox.showinfo(
-        "Help",
-        "Run All Transfers will execute every data transfer you've defined, from each source file "
-        "to each destination sheet. Make sure everything is correct before pressing this button!"
-    ),
-    width=2
-).pack(side="left", padx=4)
+).grid(row=0, column=2, padx=5)
