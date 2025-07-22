@@ -1,17 +1,7 @@
-# === Scrollable area for transfer rows ===
-scroll_canvas = tk.Canvas(self.root, height=250)  # you can increase height if needed
-scroll_frame = tk.Frame(scroll_canvas)
-scrollbar = tk.Scrollbar(self.root, orient="vertical", command=scroll_canvas.yview)
-scroll_canvas.configure(yscrollcommand=scrollbar.set)
+transform_frame = tk.Frame(self.root)
+transform_frame.pack(pady=5)
 
-scrollbar.pack(side="right", fill="y")
-scroll_canvas.pack(side="left", fill="both", expand=True)
-canvas_window = scroll_canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+self.select_transform_button = tk.Button(transform_frame, text="Select Files to Transform", command=self.select_transform_files)
+self.select_transform_button.pack(side="left")
 
-def on_frame_configure(event):
-    scroll_canvas.configure(scrollregion=scroll_canvas.bbox("all"))
-
-scroll_frame.bind("<Configure>", on_frame_configure)
-scroll_canvas.bind_all("<MouseWheel>", lambda event: scroll_canvas.yview_scroll(int(-1*(event.delta/120)), "units"))
-
-self.main_frame = scroll_frame  # Use scroll_frame as your main_frame
+tk.Button(transform_frame, text="?", command=lambda: messagebox.showinfo("Help", "Select destination Excel files to prepare for Perfman upload.\nThey’ll be converted and combined into a single master file."), width=2).pack(side="left", padx=4)
