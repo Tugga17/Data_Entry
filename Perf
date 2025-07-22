@@ -1,6 +1,72 @@
-# === Scrollable and Centered Transfer Section with Border ===
-scroll_wrapper = tk.LabelFrame(self.root, text="Transfer Section", padx=5, pady=5, font=("Helvetica", 10, "bold"))
-scroll_wrapper.pack(fill="both", expand=True, padx=10, pady=5)
+def run_perfman_uploader(excel_path, progress_callback=None, on_complete=None):
+    try:
+        exe_path = r"C:\Users\tbarth2@entergy.com\Downloads\PerfmanUploader\bin\x86\Debug\net48\PerfmanUploader.exe"
 
-scroll_container = tk.Frame(scroll_wrapper)
-scroll_container.pack(fill="both", expand=True)
+        env = os.environ.copy()
+        env["TEMP"] = r"C:\Temp"
+        env["TMP"] = r"C:\Temp"
+
+        process = subprocess.Popen(
+            [exe_path, excel_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env,
+            text=True
+        )
+
+        for line in process.stdout:
+            line = line.strip()
+            if line.startswith("PROGRESS:") and progress_callback:
+                try:
+                    percent = int(line.split(":")[1])
+                    progress_callback(percent)
+                except:
+                    pass
+
+        stdout, stderr = process.communicate()
+        out_text = stdout.strip()
+        err_text = stderr.strip()
+
+        if process.returncode == 0:
+            messagebox.showinfo("Upload Complete", f"{out_text}")
+        else:
+            messagebox.showerror("Upload Error", f"Error:\n\n{err_text or out_text}")
+    except Exception as e:
+        messagebox.showerror("Execution Error", f"Failed to run uploader:\n{str(e)}")
+    finally:
+        if on_complete:
+            on_complete()
+
+def trigger_custom_perfman_upload(self):
+    from tkinter import Tk
+    root = Tk()
+    root.withdraw()  # Hide unused window
+
+    excel_path = filedialog.askopenfilename(
+        title="Select Excel File to Upload to Perfman",
+        filetypes=[("Excel files", "*.xlsx *.xlsm *.xls")]
+    )
+
+    if excel_path:
+        self.custom_upload_button.config(state='disabled')
+        self.start_spinner()
+        self.progress_var.set(0)
+        self.progress_bar.update()
+
+        def on_progress(value):
+            self.progress_var.set(value)
+            self.progress_bar.update()
+
+        def on_upload_complete():
+            self.root.after(0, self.finish_upload_ui)
+
+        threading.Thread(
+            target=run_perfman_uploader,
+            args=(excel_path, on_progress, on_upload_complete),
+            daemon=True
+        ).start()
+
+
+self.progress_var = tk.IntVar()
+self.progress_bar = ttk.Progressbar(self.root, variable=self.progress_var, maximum=100)
+self.progress_bar.pack(pady=(0, 10))
