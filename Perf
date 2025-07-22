@@ -1,57 +1,17 @@
-transform_dest_frame = tk.Frame(self.root)
-transform_dest_frame.pack(pady=5)
+month_filter_frame = tk.Frame(self.root)
+month_filter_frame.pack(pady=(10, 2))
 
-tk.Button(transform_dest_frame, text="🔁 Transform Destination Files", command=self.transform_for_perfman).pack(side="left")
+tk.Checkbutton(month_filter_frame, text="✅ Enable Month Filtering", variable=self.month_filter_var,
+               command=self.toggle_month_dropdown).pack(side="left")
 
-tk.Button(transform_dest_frame, text="?", command=lambda: messagebox.showinfo("Help", "Run transformation on all destination files listed below. Creates PerfMan_Master.xlsx."), width=2).pack(side="left", padx=4)
-
-upload_frame = tk.Frame(self.root)
-upload_frame.pack(pady=5)
-
-self.custom_upload_button = tk.Button(upload_frame, text="Upload Custom File to Perfman", command=self.trigger_custom_perfman_upload)
-self.custom_upload_button.pack(side="left")
-
-tk.Button(upload_frame, text="?", command=lambda: messagebox.showinfo("Help", "Upload any Excel file (already in PerfMan format) to the Perfman database."), width=2).pack(side="left", padx=4)
-
-transfer_btn_frame = tk.Frame(self.root)
-transfer_btn_frame.pack(pady=5)
-
-self.run_button = tk.Button(transfer_btn_frame, text="Run All Transfers", command=self.run_all_transfers)
-self.run_button.pack(side="left")
-
-tk.Label(transfer_btn_frame, image=question_icon, cursor="question_arrow").pack(side="left", padx=4)
-CreateToolTip(self.run_button, "Executes all transfers listed below.")
-
-
-# Add Transfer Frame
-add_frame = tk.Frame(self.root)
-add_frame.pack(pady=5)
-
-self.add_transfer_button = tk.Button(add_frame, text="Add Another Transfer", command=self.add_transfer_row)
-self.add_transfer_button.pack(side="left")
-
-tk.Button(add_frame, image=self.question_icon, command=lambda: messagebox.showinfo("Help", "Add another transfer row so you can copy data from one file to another."), width=25, height=25).pack(side="left", padx=4)
-
-# Enable Month Filtering Frame
-month_frame = tk.Frame(self.root)
-month_frame.pack(pady=5)
-
-self.month_filter_checkbox = tk.Checkbutton(month_frame, text="Enable Month Filtering", variable=self.enable_month_filtering, command=self.toggle_month_filtering)
-self.month_filter_checkbox.pack(side="left")
-
-tk.Button(month_frame, image=self.question_icon, command=lambda: messagebox.showinfo("Help", "Enable this to copy data only up to a selected month. Useful for year-to-date filtering."), width=25, height=25).pack(side="left", padx=4)
-
-# Save/Load Preset Frame
-preset_frame = tk.Frame(self.root)
-preset_frame.pack(pady=5)
-
-self.save_preset_button = tk.Button(preset_frame, text="Save New Preset", command=self.save_preset)
-self.save_preset_button.pack(side="left")
-
-self.load_preset_button = tk.Button(preset_frame, text="Load From Saved Presets", command=self.load_preset)
-self.load_preset_button.pack(side="left", padx=4)
-
-tk.Button(preset_frame, image=self.question_icon, command=lambda: messagebox.showinfo("Help", "Save New Preset lets you store the current list of transfers for reuse.\nLoad From Saved Presets lets you load a saved group of transfers by name."), width=25, height=25).pack(side="left", padx=4)
-
-
+tk.Button(
+    month_filter_frame,
+    text="?",
+    command=lambda: messagebox.showinfo(
+        "Help",
+        "Allows filtering data by month. If enabled, only data from January through the selected month will be copied. "
+        "Note: The month dropdown must be *checked* to activate filtering even if a month is selected."
+    ),
+    width=2
+).pack(side="left", padx=4)
 
