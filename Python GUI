@@ -1,0 +1,572 @@
+import tkinter as tk
+from tkinter import ttk
+from tkinter import filedialog, messagebox, simpledialog
+from PIL import Image, ImageTk
+import xlwings as xw
+import os
+import sys
+import time
+import json
+import subprocess
+import threading
+
+
+# Makes sure the app can find resources (like logo.png) when bundled as .exe
+def resource_path(relative_path):
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    return os.path.join(base_path, relative_path)
+
+def run_perfman_uploader(excel_path, on_complete=None):
+    try:
+        # Get path relative to the EXE or script
+        base_dir = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else __file__)
+        exe_path = os.path.join(base_dir, "PerfmanUploader", "bin", "x86", "Debug", "net48", "PerfmanUploader.exe")
+
+        env = os.environ.copy()
+        env["TEMP"] = r"C:\Temp"
+        env["TMP"] = r"C:\Temp"
+
+        # Prevent command window from appearing
+        startupinfo = subprocess.STARTUPINFO()
+        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
+        process = subprocess.Popen(
+            [exe_path, excel_path],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env,
+            startupinfo=startupinfo,
+            creationflags=subprocess.CREATE_NO_WINDOW
+        )
+        stdout, stderr = process.communicate()
+
+        out_text = stdout.decode().strip()
+        err_text = stderr.decode().strip()
+
+        process.stdout.close()
+        process.stderr.close()
+        process.wait()
+
+        if process.returncode == 0:
+            messagebox.showinfo("Process Finished", f"\n\n{out_text}")
+        else:
+            messagebox.showerror("Upload Error", f"Error:\n\n{err_text or out_text}")
+
+    except Exception as e:
+        messagebox.showerror("Execution Error", f"Failed to run uploader:\n{str(e)}")
+    finally:
+        if on_complete:
+            on_complete()
+
+
+class ExcelTransferApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Incentives Automation Tool")
+        self.transfer_rows = []
+        self.destination_file_paths = []
+
+        # Ensure the /presets folder exists
+        self.preset_folder = os.path.join(os.path.abspath(""), "presets")
+        os.makedirs(self.preset_folder, exist_ok=True)
+
+        # Top section: logo and app title
+        top_frame = tk.Frame(self.root)
+        top_frame.pack(pady=5)
+
+        try:
+            logo_img = Image.open(resource_path("logo2.png")).resize((50, 50))
+            self.logo_photo = ImageTk.PhotoImage(logo_img)
+            tk.Label(top_frame, image=self.logo_photo).pack(side="left", padx=5)
+        except Exception:
+            pass # Fail silently if logo isn't available
+
+        tk.Label(top_frame, text="Incentives Automation Tool", font=("Helvetica", 14, "bold")).pack(side="left")
+
+        # Main container for all transfer rows
+        #self.main_frame = tk.Frame(self.root)
+        #self.main_frame.pack(padx=10, pady=10)
+
+        # === Scrollable and Centered Transfer Section ===
+        scroll_container = tk.Frame(self.root)
+        scroll_container.pack(fill="both", expand=True)
+
+        self.canvas = tk.Canvas(scroll_container, highlightthickness=0)
+        self.canvas.pack(side="left", fill="both", expand=True)
+
+        scrollbar = ttk.Scrollbar(scroll_container, orient="vertical", command=self.canvas.yview)
+        scrollbar.pack(side="right", fill="y")
+
+        self.canvas.configure(yscrollcommand=scrollbar.set)
+
+        # Create an internal frame and center it inside the canvas
+        self.scrollable_frame = tk.Frame(self.canvas)
+        self.center_frame = tk.Frame(self.scrollable_frame)  # <-- This is the centering frame
+        self.center_frame.pack(anchor="center")
+
+        canvas_window = self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        def on_frame_configure(event):
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+        self.scrollable_frame.bind("<Configure>", on_frame_configure)
+
+        def on_canvas_resize(event):
+            # Always resize canvas window width to canvas
+            canvas_width = event.width
+            self.canvas.itemconfig(canvas_window, width=canvas_width)
+
+        self.canvas.bind("<Configure>", on_canvas_resize)
+
+        self.main_frame = self.center_frame  # <- you pack all transfer UI into this
+
+        self.add_transfer_row() # Add default row
+
+
+        #loading icon
+        #self.loader = ttk.Label(self.root, text="Uploading...", foreground="blue")
+        #self.loader.pack_forget()  # Hide it initially
+        #self.spinner_label = tk.Label(self.root, text="")
+        #self.spinner_label.pack()
+
+        # Manual Save/Load (for quick reuse, always overwrites saved_transfers.json)
+        #tk.Button(self.root, text="💾 Save Transfers", command=self.save_transfers).pack(pady=2)
+        #tk.Button(self.root, text="📂 Load Transfers", command=self.load_transfers).pack(pady=2)
+
+
+        self.select_transform_button = tk.Button(root, text="Select Files to Transform", command=self.select_transform_files)
+        self.select_transform_button.pack(pady=5)
+
+        tk.Button(self.root, text="🔁 Transform Destination Files", command=self.transform_for_perfman).pack(pady=5)
+
+        #temp button for testing perfman upload
+        self.custom_upload_button = tk.Button(root, text="Upload Custom File to Perfman", command=self.trigger_custom_perfman_upload)
+        self.custom_upload_button.pack(pady=5)
+
+        # Preset save/load section
+        #tk.Label(self.root, text='Load from Saved Presets', font=("Helvetica", 10)).pack()
+        preset_control_frame = tk.LabelFrame(self.root, text='Load from Saved Presets', font=("Helvetica", 10))
+        preset_control_frame.pack(pady=5)
+
+        self.preset_var = tk.StringVar()
+        self.preset_menu = tk.OptionMenu(preset_control_frame, self.preset_var, "", command=self.load_preset)
+        self.preset_menu.config(width=25)
+        self.preset_menu.grid(row=0, column=0, padx=5)
+
+        tk.Button(preset_control_frame, text="💽 Save New Preset", command=self.save_preset).grid(row=0, column=1, padx=5)
+
+        self.update_preset_dropdown()
+
+        # === Month filtering controls ===
+        self.month_filter_var = tk.BooleanVar(value=False)
+        tk.Checkbutton(self.root, text="✅ Enable Month Filtering", variable=self.month_filter_var,
+                       command=self.toggle_month_dropdown).pack(pady=(10, 2))
+        self.month_var = tk.StringVar()
+        months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+        self.month_dropdown = tk.OptionMenu(self.root, self.month_var, *months)
+        self.month_dropdown.pack()
+        self.month_dropdown.config(state="disabled")
+
+        #  Main action buttons
+        tk.Button(self.root, text="➕ Add Another Transfer", command=self.add_transfer_row).pack(pady=2)
+        tk.Button(self.root, text="🚀 Run All Transfers", command=self.run_all_transfers).pack(pady=5)
+
+        # Status label for showing progress
+        self.log_text = tk.StringVar()
+        self.log_label = tk.Label(self.root, textvariable=self.log_text, fg="blue")
+        self.log_label.pack(pady=(0, 10))
+
+        self.spinner_text = tk.StringVar()
+        self.spinner_label = tk.Label(self.root, textvariable=self.spinner_text, fg="blue")
+        self.spinner_label.pack(pady=(0, 10))
+
+        #tk.Label(self.root, textvariable=self.log_text, fg="blue").pack(pady=(0, 10))
+
+        self.scrollable_frame.bind("<Enter>", lambda e: self.canvas.bind_all("<MouseWheel>", self._on_mousewheel))
+        self.scrollable_frame.bind("<Leave>", lambda e: self.canvas.unbind_all("<MouseWheel>"))
+
+
+    def toggle_month_dropdown(self):
+        """Enables/disables the month dropdown based on checkbox"""
+
+        if self.month_filter_var.get():
+            self.month_dropdown.config(state="normal")
+        else:
+            self.month_dropdown.config(state="disabled")
+
+
+    def select_transform_files(self):
+        files = filedialog.askopenfilenames(title="Select files to transform for PerfMan")
+        if not files:
+            return
+        # Transform the selected files
+        self.transform_for_perfman(file_paths=files)
+
+
+    def trigger_custom_perfman_upload(self):
+        from tkinter import Tk
+        root = Tk()
+        root.withdraw()  # Hide unused window
+
+        excel_path = filedialog.askopenfilename(
+            title="Select Excel File to Upload to Perfman",
+            filetypes=[("Excel files", "*.xlsx *.xlsm *.xls")]
+        )
+
+        if excel_path:
+            self.custom_upload_button.config(state='disabled')
+            self.start_spinner()
+
+            def on_upload_complete():
+                self.root.after(0, lambda: self.finish_upload_ui())
+
+            threading.Thread(
+                target=run_perfman_uploader,
+                args=(excel_path, on_upload_complete),
+                daemon=True
+            ).start()
+
+    def start_spinner(self):
+        self.spinner_text.set("Uploading... ⏳")
+        self.spinner_label.update()
+
+    def finish_upload_ui(self):
+        self.spinner_text.set("Upload complete ✅")
+        self.custom_upload_button.config(state='normal')
+
+    # Adds a new row of inputs (source, destination, sheet name)
+    def add_transfer_row(self, source="", destination="", sheet="Sheet1"):
+        row_frame = tk.Frame(self.main_frame)
+        row_frame.pack(fill="x", pady=2)
+
+        source_entry = tk.Entry(row_frame, width=35)
+        source_entry.insert(0, source)
+        source_entry.grid(row=0, column=0, padx=2)
+        tk.Button(row_frame, text="Source", command=lambda: self.browse_file(source_entry)).grid(row=0, column=1, padx=2)
+
+        dest_entry = tk.Entry(row_frame, width=35)
+        dest_entry.insert(0, destination)
+        dest_entry.grid(row=0, column=2, padx=2)
+        tk.Button(row_frame, text="Destination", command=lambda: self.browse_file(dest_entry)).grid(row=0, column=3, padx=2)
+
+        sheet_entry = tk.Entry(row_frame, width=20)
+        sheet_entry.insert(0, sheet)
+        sheet_entry.grid(row=0, column=4, padx=2)
+
+        # Remove button to delete this transfer row
+        tk.Button(row_frame, text="🗑️ Remove", command=lambda: self.remove_transfer_row(row_frame)).grid(row=0, column=5, padx=2)
+
+        self.transfer_rows.append((row_frame, source_entry, dest_entry, sheet_entry))
+
+    def remove_transfer_row(self, row_frame):
+        """Remove a row from the GUI and internal list"""
+        for row in self.transfer_rows:
+            if row[0] == row_frame:
+                row[0].destroy()
+                self.transfer_rows.remove(row)
+                break
+
+    def browse_file(self, entry_widget):
+        """Opens a file dialog and inserts the chosen path into the entry field"""
+        path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx *.xlsm")])
+        if path:
+            entry_widget.delete(0, tk.END)
+            entry_widget.insert(0, path)
+
+    def run_all_transfers(self):
+        """Runs all valid transfer jobs, one after another"""
+        jobs = []
+        for _, src_entry, dst_entry, sheet_entry in self.transfer_rows:
+            src = src_entry.get()
+            dst = dst_entry.get()
+            sheet = sheet_entry.get()
+            if src and dst and sheet:
+                jobs.append((src, dst, sheet))
+
+        if not jobs:
+            messagebox.showerror("Error", "No valid transfers found.")
+            return
+
+        self.log_text.set("Starting transfers...")
+        self.root.update()
+
+        for index, (src, dst, sheet) in enumerate(jobs, start=1):
+            self.log_text.set(f"Processing {index}/{len(jobs)}: {os.path.basename(src)} → {os.path.basename(dst)}")
+            self.root.update()
+            self.transfer_data(src, dst, sheet)
+
+        self.log_text.set("✅ All transfers complete.")
+
+    def transfer_data(self, source_file, destination_file, sheet_name):
+        """Handles optional month-filtered YTD data transfer with extra columns"""
+
+        try:
+            wb_src = xw.Book(source_file)
+            sht_src = wb_src.sheets[sheet_name]
+            wb_src.api.RefreshAll()
+            while wb_src.app.api.CalculationState != 0:
+                time.sleep(1)
+
+            data = sht_src.used_range.value
+            if not data:
+                raise ValueError("No data found in sheet.")
+
+            headers = data[0]
+            rows = data[1:]
+            month_names = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                           "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+            month_col_indices = {col: i for i, col in enumerate(headers) if col in month_names}
+
+            if not month_col_indices:
+                raise ValueError("No month columns found (Jan–Dec).")
+
+            # Determine YTD range based on UI inputs
+            filter_months_enabled = self.month_filter_var.get()
+            selected_month = self.month_var.get()
+
+            if filter_months_enabled and selected_month in month_names:
+                last_month_idx = month_col_indices[selected_month]
+            else:
+                last_month_idx = max(month_col_indices.values())  # default: include all months
+
+            first_month_idx = min(month_col_indices.values())
+
+            # === Safely build final_data with padded rows and optional month filtering ===
+            final_data = [headers]  # keep header
+
+            for row in rows:
+                # Pad row to match number of columns in header (avoids IndexErrors)
+                padded_row = row + [""] * (len(headers) - len(row))
+
+                new_row = []
+                for i, col in enumerate(headers):
+                    cell_value = padded_row[i]
+                    if col in month_names:
+                        if filter_months_enabled and col in month_col_indices and month_col_indices[col] > last_month_idx:
+                            new_row.append("")  # blank out future month values
+                        else:
+                            new_row.append(cell_value)
+                    else:
+                        new_row.append(cell_value)
+
+                final_data.append(new_row)
+
+            # Paste to destination
+            wb_dest = xw.Book(destination_file)
+            sht_dest = wb_dest.sheets[sheet_name]
+            sht_dest.clear_contents()
+            print("Rows in final_data:", len(final_data))
+            print("First row (headers):", final_data[0] if final_data else "No Data")
+            sht_dest.range("A1").value = final_data
+
+            wb_dest.save()
+            wb_dest.close()
+            wb_src.close()
+
+        except Exception as e:
+            messagebox.showerror("Transfer Error", f"{source_file} → {destination_file}\n\n{str(e)}")
+
+    # Manual Save/Load
+    def save_transfers(self):
+        """Saves current inputs to a fixed file (saved_transfers.json)"""
+        transfers = []
+        for _, src_entry, dst_entry, sheet_entry in self.transfer_rows:
+            transfers.append({
+                "source": src_entry.get(),
+                "destination": dst_entry.get(),
+                "sheet": sheet_entry.get()
+            })
+        with open("../../Excel_app/saved_transfers.json", "w") as f:
+            json.dump(transfers, f, indent=2)
+        messagebox.showinfo("Saved", "Transfers saved to 'saved_transfers.json'")
+
+    def load_transfers(self):
+        """Loads saved_transfers.json and populates the UI"""
+        try:
+            with open("../../Excel_app/saved_transfers.json", "r") as f:
+                saved = json.load(f)
+
+            for row in self.transfer_rows:
+                row[0].destroy()
+            self.transfer_rows = []
+
+            for item in saved:
+                self.add_transfer_row(item["source"], item["destination"], item["sheet"])
+
+            messagebox.showinfo("Loaded", f"{len(saved)} transfers loaded successfully.")
+        except Exception as e:
+            messagebox.showerror("Load Error", str(e))
+
+    # Preset Save/Load
+    def save_preset(self):
+        """Prompt user for name and save current config to /presets folder"""
+        name = simpledialog.askstring("Preset Name", "Enter a name for this preset:")
+        if not name:
+            return
+
+        preset_data = []
+        for _, src_entry, dst_entry, sheet_entry in self.transfer_rows:
+            preset_data.append({
+                "source": src_entry.get(),
+                "destination": dst_entry.get(),
+                "sheet": sheet_entry.get()
+            })
+
+        preset_path = os.path.join(self.preset_folder, f"{name}.json")
+        if os.path.exists(preset_path):
+            messagebox.showinfo("Preset Exists", "Preset already exists and cannot be overwritten.")
+            return
+
+        try:
+            with open(preset_path, "w") as f:
+                json.dump(preset_data, f, indent=2)
+            messagebox.showinfo("Saved", f"Preset '{name}' saved.")
+            self.update_preset_dropdown()
+        except Exception as e:
+            messagebox.showerror("Save Error", str(e))
+
+    def update_preset_dropdown(self):
+        """Refresh the dropdown menu with all .json files from /presets"""
+        presets = [f.replace(".json", "") for f in os.listdir(self.preset_folder) if f.endswith(".json")]
+        menu = self.preset_menu["menu"]
+        menu.delete(0, "end")
+        for p in presets:
+            menu.add_command(label=p, command=lambda val=p: self.load_selected_preset(val))
+        self.preset_var.set("")
+
+    def load_selected_preset(self, name):
+        self.preset_var.set(name)
+        self.load_preset(name)
+
+    def load_preset(self, name):
+        """Loads a preset from /presets after confirmation"""
+        if not name:
+            return
+
+        result = messagebox.askyesno("Load Preset", f"This will clear current transfers.\nLoad preset '{name}'?")
+        if not result:
+            return
+
+        preset_path = os.path.join(self.preset_folder, f"{name}.json")
+        if not os.path.exists(preset_path):
+            messagebox.showerror("Not Found", f"Preset '{name}' not found.")
+            return
+
+        try:
+            with open(preset_path, "r") as f:
+                transfers = json.load(f)
+
+            for row in self.transfer_rows:
+                row[0].destroy()
+            self.transfer_rows = []
+
+            for item in transfers:
+                self.add_transfer_row(item["source"], item["destination"], item["sheet"])
+
+            messagebox.showinfo("Loaded", f"Preset '{name}' loaded successfully.")
+        except Exception as e:
+            messagebox.showerror("Load Error", str(e))
+
+    def show_loader(self):
+        self.loader.pack()
+        self.root.update_idletasks()
+
+    def hide_loader(self):
+        self.loader.pack_forget()
+        self.root.update_idletasks()
+
+    def transform_for_perfman(self, file_paths=None):
+        try:
+            import openpyxl
+            from openpyxl import Workbook, load_workbook
+            from tkinter import simpledialog
+
+            if file_paths is None:
+                file_paths = [dst_entry.get() for _, _, dst_entry, _ in self.transfer_rows]
+
+            if not file_paths:
+                messagebox.showerror("No Files", "No destination files to transform.")
+                return
+
+            master_file = "PerfMan_Master.xlsx"
+            perfman_headers = ["Metric_ID", "DsDesc", "Month", "Point Value", "Year"]
+            all_transformed_rows = [perfman_headers]
+
+            for file_path in file_paths:
+                matching_sheet_name = None
+                # Try matching from transfer rows
+                for _, _, dst_entry, sheet_entry in self.transfer_rows:
+                    if dst_entry.get() == file_path:
+                        matching_sheet_name = sheet_entry.get()
+                        break
+
+                # If not found, ask user
+                if not matching_sheet_name:
+                    matching_sheet_name = "PerfMan_Data"
+                    #(
+                        #simpledialog.askstring(
+                        #"Sheet Name Required",
+                        #f"Enter sheet name for file:\n{os.path.basename(file_path)}"
+                    #))
+
+                # Skip if still not found or file doesn't exist
+                if not matching_sheet_name or not os.path.exists(file_path):
+                    continue
+
+                wb = xw.Book(file_path)
+                sht = wb.sheets[matching_sheet_name]
+                data = sht.used_range.value
+                wb.close()
+
+                if not data:
+                    continue
+
+                headers = data[0]
+                rows = data[1:]
+
+                col_index = {col: idx for idx, col in enumerate(headers)}
+                required = ["Metric_ID", "DsDesc", "Year"]
+                months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                          "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+                if not all(col in col_index for col in required):
+                    continue
+
+                for row in rows:
+                    for month in months:
+                        if month in col_index:
+                            point_val = row[col_index[month]] if col_index[month] < len(row) else ""
+                            if point_val not in ("", None):
+                                transformed = [
+                                    row[col_index["Metric_ID"]],
+                                    row[col_index["DsDesc"]],
+                                    month,
+                                    point_val,
+                                    row[col_index["Year"]],
+                                ]
+                                all_transformed_rows.append(transformed)
+
+            # Write to master file (overwrite each full transformation session)
+            wb_master = Workbook()
+            ws = wb_master.active
+            ws.title = "PerfMan_Data"
+            for row in all_transformed_rows:
+                ws.append(row)
+
+            wb_master.save(master_file)
+            messagebox.showinfo("Done", f"{master_file} created with {len(all_transformed_rows) - 1} data rows.")
+        except Exception as e:
+            messagebox.showerror("Transformation Error", str(e))
+
+    def _on_mousewheel(self, event):
+        self.canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+
+
+
+# === Run the app ===
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = ExcelTransferApp(root)
+    root.mainloop()
+
