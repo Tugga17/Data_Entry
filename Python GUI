@@ -13,47 +13,41 @@ import threading
 
 # Makes sure the app can find resources (like logo.png) when bundled as .exe
 def resource_path(relative_path):
-    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("presets"))
     return os.path.join(base_path, relative_path)
 
 def run_perfman_uploader(excel_path, on_complete=None):
     try:
-        # Get path relative to the EXE or script
-        base_dir = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else __file__)
-        exe_path = os.path.join(base_dir, "PerfmanUploader", "bin", "x86", "Debug", "net48", "PerfmanUploader.exe")
+        exe_path = r"C:\Users\tbarth2@entergy.com\Downloads\PerfmanUploader\bin\x86\Debug\net48\PerfmanUploader.exe"
+
+        #exe_path = os.path.join(os.path.dirname(sys.executable), "PerfmanUploader", "PerfmanUploader.exe")
 
         env = os.environ.copy()
         env["TEMP"] = r"C:\Temp"
         env["TMP"] = r"C:\Temp"
 
-        # Prevent command window from appearing
-        startupinfo = subprocess.STARTUPINFO()
-        startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+        try:
+            process = subprocess.Popen(
+                [exe_path, excel_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=env
+            )
+            stdout, stderr = process.communicate()
 
-        process = subprocess.Popen(
-            [exe_path, excel_path],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            env=env,
-            startupinfo=startupinfo,
-            creationflags=subprocess.CREATE_NO_WINDOW
-        )
-        stdout, stderr = process.communicate()
+            out_text = stdout.decode().strip()
+            err_text = stderr.decode().strip()
 
-        out_text = stdout.decode().strip()
-        err_text = stderr.decode().strip()
-
-        process.stdout.close()
-        process.stderr.close()
-        process.wait()
-
-        if process.returncode == 0:
-            messagebox.showinfo("Process Finished", f"\n\n{out_text}")
-        else:
-            messagebox.showerror("Upload Error", f"Error:\n\n{err_text or out_text}")
-
+            # Display result
+            if process.returncode == 0:
+                messagebox.showinfo("Process Finished", f"\n\n{out_text}")
+            else:
+                messagebox.showerror("Upload Error", f"Error:\n\n{err_text or out_text}")
+        except Exception as e:
+            messagebox.showerror("Execution Error", f"Failed to run uploader:\n{str(e)}")
+        subprocess.run(['PerfmanUploader.exe', excel_path], check=True)
     except Exception as e:
-        messagebox.showerror("Execution Error", f"Failed to run uploader:\n{str(e)}")
+        print(f"Upload failed:{e}")
     finally:
         if on_complete:
             on_complete()
@@ -74,7 +68,10 @@ class ExcelTransferApp:
         top_frame = tk.Frame(self.root)
         top_frame.pack(pady=5)
 
+        self.help_img = ImageTk.PhotoImage(Image.open("help_icon.png").resize((16, 16)))
+
         try:
+
             logo_img = Image.open(resource_path("logo2.png")).resize((50, 50))
             self.logo_photo = ImageTk.PhotoImage(logo_img)
             tk.Label(top_frame, image=self.logo_photo).pack(side="left", padx=5)
@@ -133,18 +130,40 @@ class ExcelTransferApp:
         #tk.Button(self.root, text="💾 Save Transfers", command=self.save_transfers).pack(pady=2)
         #tk.Button(self.root, text="📂 Load Transfers", command=self.load_transfers).pack(pady=2)
 
+        transform_frame = tk.Frame(self.root)
+        transform_frame.pack(pady=5)
 
-        self.select_transform_button = tk.Button(root, text="Select Files to Transform", command=self.select_transform_files)
-        self.select_transform_button.pack(pady=5)
+        self.select_transform_button = tk.Button(transform_frame, text="Select Files to Transform",
+                                                 command=self.select_transform_files)
+        self.select_transform_button.pack(side="left")
 
-        tk.Button(self.root, text="🔁 Transform Destination Files", command=self.transform_for_perfman).pack(pady=5)
+        tk.Button(transform_frame, image=self.help_img, command=lambda: messagebox.showinfo("Help",
+                                                                                 "Select Excel files to prepare for Perfman upload.\nThey’ll be converted and combined into a single master file."),
+                  bd=0).pack(side="left", padx=4)
+
+        transform_dest_frame = tk.Frame(self.root)
+        transform_dest_frame.pack(pady=5)
+
+        tk.Button(transform_dest_frame, text="🔁 Transform Destination Files", command=self.transform_for_perfman).pack(
+            side="left")
+
+        tk.Button(transform_dest_frame, image=self.help_img, command=lambda: messagebox.showinfo("Help",
+                                                                                      "Run transformation on all destination files listed above. Creates PerfMan_Master.xlsx."),
+                  bd=0).pack(side="left", padx=4)
 
         #temp button for testing perfman upload
-        self.custom_upload_button = tk.Button(root, text="Upload Custom File to Perfman", command=self.trigger_custom_perfman_upload)
-        self.custom_upload_button.pack(pady=5)
+        upload_frame = tk.Frame(self.root)
+        upload_frame.pack(pady=5)
+
+        self.custom_upload_button = tk.Button(upload_frame, text="Upload Custom File to Perfman",
+                                              command=self.trigger_custom_perfman_upload)
+        self.custom_upload_button.pack(side="left")
+
+        tk.Button(upload_frame, image=self.help_img, command=lambda: messagebox.showinfo("Help",
+                                                                              "Upload any Excel file (already in PerfMan format) to the Perfman database."),
+                  bd=0).pack(side="left", padx=4)
 
         # Preset save/load section
-        #tk.Label(self.root, text='Load from Saved Presets', font=("Helvetica", 10)).pack()
         preset_control_frame = tk.LabelFrame(self.root, text='Load from Saved Presets', font=("Helvetica", 10))
         preset_control_frame.pack(pady=5)
 
@@ -153,14 +172,38 @@ class ExcelTransferApp:
         self.preset_menu.config(width=25)
         self.preset_menu.grid(row=0, column=0, padx=5)
 
-        tk.Button(preset_control_frame, text="💽 Save New Preset", command=self.save_preset).grid(row=0, column=1, padx=5)
+        tk.Button(preset_control_frame, text="💽 Save New Preset", command=self.save_preset).grid(row=0, column=1,
+                                                                                                 padx=5)
 
+        tk.Button(
+            preset_control_frame,
+            image=self.help_img,
+            command=lambda: messagebox.showinfo("Help",
+                                                "Save a group of transfers as a preset to reuse them later. Presets are saved in the /presets folder and are named by you. Loading a preset will replace your current transfers."),
+            bd=0
+        ).grid(row=0, column=2, padx=5)
         self.update_preset_dropdown()
 
         # === Month filtering controls ===
-        self.month_filter_var = tk.BooleanVar(value=False)
-        tk.Checkbutton(self.root, text="✅ Enable Month Filtering", variable=self.month_filter_var,
-                       command=self.toggle_month_dropdown).pack(pady=(10, 2))
+        # Enable Month Filtering Frame
+        month_filter_frame = tk.Frame(self.root)
+        month_filter_frame.pack(pady=(10, 2))
+        self.month_filter_var = tk.BooleanVar(value = False)
+
+        tk.Checkbutton(month_filter_frame, text="Enable Month Filtering", variable=self.month_filter_var,
+                       command=self.toggle_month_dropdown).pack(side="left")
+
+        tk.Button(
+            month_filter_frame,
+            image=self.help_img,
+            command=lambda: messagebox.showinfo(
+                "Help",
+                "Allows filtering data by month. If enabled, only data from January through the selected month will be copied. "
+                "Note: The month dropdown must be *checked* to activate filtering even if a month is selected."
+            ),
+            bd=0
+        ).pack(side="left", padx=4)
+
         self.month_var = tk.StringVar()
         months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
         self.month_dropdown = tk.OptionMenu(self.root, self.month_var, *months)
@@ -168,8 +211,31 @@ class ExcelTransferApp:
         self.month_dropdown.config(state="disabled")
 
         #  Main action buttons
-        tk.Button(self.root, text="➕ Add Another Transfer", command=self.add_transfer_row).pack(pady=2)
-        tk.Button(self.root, text="🚀 Run All Transfers", command=self.run_all_transfers).pack(pady=5)
+        # Add Transfer Frame
+        add_frame = tk.Frame(self.root)
+        add_frame.pack(pady=5)
+
+        self.add_transfer_button = tk.Button(add_frame, text="Add Another Transfer", command=self.add_transfer_row)
+        self.add_transfer_button.pack(side="left")
+
+        tk.Button(add_frame, image=self.help_img, command=lambda: messagebox.showinfo("Help",
+                                                                                           "Add another transfer row so you can copy data from one file to another."),
+                  bd=0).pack(side="left", padx=4)
+
+        run_frame = tk.Frame(self.root)
+        run_frame.pack(pady=5)
+
+        tk.Button(run_frame, text="Run All Transfers", command=self.run_all_transfers).pack(side="left")
+        tk.Button(
+            run_frame,
+            image=self.help_img,
+            command=lambda: messagebox.showinfo(
+                "Help",
+                "Run All Transfers will execute every data transfer you've defined, from each source file "
+                "to each destination sheet. Make sure everything is correct before pressing this button!"
+            ),
+            bd=0
+        ).pack(side="left", padx=4)
 
         # Status label for showing progress
         self.log_text = tk.StringVar()
@@ -488,7 +554,7 @@ class ExcelTransferApp:
                 messagebox.showerror("No Files", "No destination files to transform.")
                 return
 
-            master_file = "PerfMan_Master.xlsx"
+            master_file = "../../PyCharmMiscProject/PerfMan_Master.xlsx"
             perfman_headers = ["Metric_ID", "DsDesc", "Month", "Point Value", "Year"]
             all_transformed_rows = [perfman_headers]
 
