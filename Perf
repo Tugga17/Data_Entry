@@ -1,17 +1,6 @@
-# Preset save/load section
-preset_control_frame = tk.LabelFrame(self.root, text='Load from Saved Presets', font=("Helvetica", 10))
-preset_control_frame.pack(pady=5)
+# === Scrollable and Centered Transfer Section with Border ===
+scroll_wrapper = tk.LabelFrame(self.root, text="Transfer Section", padx=5, pady=5, font=("Helvetica", 10, "bold"))
+scroll_wrapper.pack(fill="both", expand=True, padx=10, pady=5)
 
-self.preset_var = tk.StringVar()
-self.preset_menu = tk.OptionMenu(preset_control_frame, self.preset_var, "", command=self.load_preset)
-self.preset_menu.config(width=25)
-self.preset_menu.grid(row=0, column=0, padx=5)
-
-tk.Button(preset_control_frame, text="💽 Save New Preset", command=self.save_preset).grid(row=0, column=1, padx=5)
-
-tk.Button(
-    preset_control_frame,
-    text="?",
-    command=lambda: messagebox.showinfo("Help", "Save a group of transfers as a preset to reuse them later. Presets are saved in the /presets folder and are named by you. Loading a preset will replace your current transfers."),
-    width=2
-).grid(row=0, column=2, padx=5)
+scroll_container = tk.Frame(scroll_wrapper)
+scroll_container.pack(fill="both", expand=True)
