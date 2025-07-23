@@ -7,14 +7,17 @@ Public Class ProgressWindow
     Public WithEvents StatusLabel As New Label()
 
     Public Sub New()
+        ' Basic window setup
         Me.Text = "Uploading to Perfman"
         Me.Width = 400
         Me.Height = 120
         Me.FormBorderStyle = FormBorderStyle.FixedDialog
-        Me.StartPosition = FormStartPosition.CenterScreen
+        Me.StartPosition = FormStartPosition.CenterScreen ' 👈 Centers on screen
         Me.MaximizeBox = False
         Me.MinimizeBox = False
+        Me.TopMost = True ' 👈 Stays above all other windows
 
+        ' Progress bar setup
         ProgressBar1.Width = 350
         ProgressBar1.Height = 30
         ProgressBar1.Top = 20
@@ -24,11 +27,17 @@ Public Class ProgressWindow
         ProgressBar1.Maximum = 100
         Me.Controls.Add(ProgressBar1)
 
+        ' Status label setup
         StatusLabel.Top = 60
         StatusLabel.Left = 20
         StatusLabel.Width = 350
         StatusLabel.Text = "Starting upload..."
         Me.Controls.Add(StatusLabel)
+
+        ' Make sure it appears on top immediately
+        Me.Show()
+        Me.BringToFront()
+        Me.Activate()
     End Sub
 
     Public Sub SetProgress(value As Integer, Optional statusText As String = "")
@@ -43,47 +52,6 @@ Public Class ProgressWindow
     End Sub
 End Class
 
-Private Function SaveExcelData(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As Integer
-    Dim i As Integer = 0
-    Dim db As New PMPointsDB
-    Dim badList As New List(Of UPMPointsDTO)
+    
 
-    ' === Initialize and show progress bar window ===
-    Dim progressForm As New ProgressWindow()
-    progressForm.Show()
-    progressForm.Refresh()
-
-    Dim total As Integer = list.Count
-    Dim current As Integer = 0
-
-    For Each dto As UPMPointsDTO In list
-        Try
-            LogDebug("Saving Metric: " & dto.MetricID)
-            LogDtoContents(dto)
-
-            db.SavePointsArchive(dto)
-            Dim j As Integer = db.SaveUPMPoints(dto)
-
-            If j = 1 Then
-                i += 1
-            Else
-                badList.Add(dto)
-            End If
-        Catch ex As Exception
-            LogDebug("❌ EXCEPTION saving MetricID " & dto.MetricID)
-            LogDebug("    Error Message: " & ex.Message)
-            LogDebug("    Stack Trace: " & ex.StackTrace)
-            badList.Add(dto)
-        End Try
-
-        current += 1
-        Dim percentComplete As Integer = CInt((current / total) * 100)
-        progressForm.SetProgress(percentComplete, $"Uploading {current} of {total}")
-        Application.DoEvents() ' Allow UI updates
-    Next
-
-    progressForm.Close()
-
-    errorList = badList
-    Return i
-End Function
+ 
