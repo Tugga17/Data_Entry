@@ -13,15 +13,15 @@ import threading
 
 # Makes sure the app can find resources (like logo.png) when bundled as .exe
 def resource_path(relative_path):
-    base_path = getattr(sys, '_MEIPASS', os.path.abspath("presets"))
+    base_path = getattr(sys, '_MEIPASS', os.path.abspath("."))
     return os.path.join(base_path, relative_path)
 
 def run_perfman_uploader(excel_path, on_complete=None):
     try:
-        exe_path = r"C:\Users\tbarth2@entergy.com\Desktop\Incentive Automation Tool Prod\PerfmanUploader\bin\x86\Debug\net48\PerfmanUploader.exe"
+        #exe_path = r"C:\Users\tbarth2@entergy.com\Desktop\Incentive Automation Tool Prod\PerfmanUploader\bin\x86\Debug\net48\PerfmanUploader.exe"
 
-
-        #exe_path = os.path.join(os.path.dirname(sys.executable), "PerfmanUploader", "PerfmanUploader.exe")
+        base_dir = os.path.dirname(sys.executable if getattr(sys, 'frozen', False) else __file__)
+        exe_path = os.path.join(base_dir, "PerfmanUploader", "bin", "x86", "Debug", "net48", "PerfmanUploader.exe")
 
         env = os.environ.copy()
         env["TEMP"] = r"C:\Temp"
@@ -70,7 +70,9 @@ class ExcelTransferApp:
         top_frame = tk.Frame(self.root)
         top_frame.pack(pady=5)
 
-        self.help_img = ImageTk.PhotoImage(Image.open("help_icon.png").resize((16, 16)))
+
+        help_img = Image.open(resource_path("help_icon.png")).resize((16, 16))
+        self.help_img = ImageTk.PhotoImage(help_img)
 
         try:
 
