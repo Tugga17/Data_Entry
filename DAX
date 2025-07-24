@@ -1,0 +1,207 @@
+DEFINE
+
+	VAR __DS0FilterTable = 
+		TREATAS({2025}, '_DATE'[Year])
+
+	VAR __DS0Core01 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			__DS0FilterTable,
+			"Metric_ID", '_MEASURES'[ID_System_SIF Events (Employees)],
+			"DsDesc", '_MEASURES'[DS_Monthly],
+			"Point Value", '_MEASURES'[CALC_Monthly_SIF Events (Employee)]
+		)
+
+	VAR __DS0Core02 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			__DS0FilterTable,
+			"Metric_ID", '_MEASURES'[ID_System_SIF Events (Employees)],
+			"DsDesc", '_MEASURES'[DS_YTD],	
+			"Point Value", '_MEASURES'[CALC_YTD_SIF Events (Employee)]
+		)
+
+VAR __DS0Core03 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			__DS0FilterTable,
+			"Metric_ID", '_MEASURES'[ID_System_SIF Events (Contractor)],
+			"DsDesc", '_MEASURES'[DS_Monthly],
+			"Point Value", '_MEASURES'[CALC_Monthly_SIF Events (Contractor)]
+		)
+
+VAR __DS0Core04 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			__DS0FilterTable,
+			"Metric_ID", '_MEASURES'[ID_System_SIF Events (Contractor)],
+			"DsDesc", '_MEASURES'[DS_YTD],
+			"Point Value", '_MEASURES'[CALC_YTD_SIF Events (Contractor)]
+		)
+
+VAR __DS0Core05 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			__DS0FilterTable,
+			"Metric_ID", '_MEASURES'[ID_System_SIF Events (Emp+Con)],
+			"DsDesc", '_MEASURES'[DS_Monthly],
+			"Point Value", '_MEASURES'[CALC_Monthly_SIF Events (Emp+Con)]
+		)
+
+VAR __DS0Core06 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			__DS0FilterTable,
+			"Metric_ID", '_MEASURES'[ID_System_SIF Events (Emp+Con)],
+			"DsDesc", '_MEASURES'[DS_YTD],
+			"Point Value", '_MEASURES'[CALC_YTD_SIF Events (Emp+Con)]
+		)
+
+VAR __DS0Core07 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Business Function'[SIF Events_Emp],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_Monthly],
+			"Point Value", '_MEASURES'[CALC_Monthly_SIF Events (Employee)]
+		)
+
+VAR __DS0Core08 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Business Function'[SIF Events_Emp],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_YTD],
+			"Point Value", '_MEASURES'[CALC_YTD_SIF Events (Employee)]
+		)
+
+VAR __DS0Core09 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Business Function'[SIF Events_Con],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_Monthly],
+			"Point Value", '_MEASURES'[CALC_Monthly_SIF Events (Contractor)]
+		)
+
+VAR __DS0Core10 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Business Function'[SIF Events_Con],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_YTD],
+			"Point Value", '_MEASURES'[CALC_YTD_SIF Events (Contractor)]
+		)
+
+VAR __DS0Core11 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Business Function'[SIF Events_Emp+Con],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_Monthly],
+			"Point Value", '_MEASURES'[CALC_Monthly_SIF Events (Emp+Con)]
+		)
+
+VAR __DS0Core12 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Business Function'[SIF Events_Emp+Con],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_YTD],
+			"Point Value", '_MEASURES'[CALC_YTD_SIF Events (Emp+Con)]
+		)
+
+VAR __DS0Core13 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Legal Entity'[SIF Events_Emp],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_Monthly],
+			"Point Value", '_MEASURES'[CALC_Monthly_SIF Events (Employee)]
+		)
+
+VAR __DS0Core14 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Legal Entity'[SIF Events_Emp],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_YTD],
+			"Point Value", '_MEASURES'[CALC_YTD_SIF Events (Employee)]
+		)
+
+VAR __DS0Core15 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Legal Entity'[SIF Events_Con],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_Monthly],
+			"Point Value", '_MEASURES'[CALC_Monthly_SIF Events (Contractor)]
+		)
+
+VAR __DS0Core16 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Legal Entity'[SIF Events_Con],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_YTD],
+			"Point Value", '_MEASURES'[CALC_YTD_SIF Events (Contractor)]
+		)
+
+VAR __DS0Core17 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Legal Entity'[SIF Events_Emp+Con],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_Monthly],
+			"Point Value", '_MEASURES'[CALC_Monthly_SIF Events (Emp+Con)]
+		)
+
+VAR __DS0Core18 = 
+		SUMMARIZECOLUMNS(
+			'_DATE'[MonthNameShort],
+			'_DATE'[Year],
+			'_MetricID Legal Entity'[SIF Events_Emp+Con],
+			__DS0FilterTable,
+			"DsDesc", '_MEASURES'[DS_YTD],
+			"Point Value", '_MEASURES'[CALC_YTD_SIF Events (Emp+Con)]
+		)
+
+VAR __DS0CombinedTable =
+    UNION(
+		__DS0Core01,
+		__DS0Core02,
+		__DS0Core03,
+		__DS0Core04,
+		__DS0Core05,
+		__DS0Core06,
+		__DS0Core07,
+		__DS0Core08,
+		__DS0Core09,
+		__DS0Core10,
+		__DS0Core11,
+		__DS0Core12,
+		__DS0Core13,
+		__DS0Core14,
+		__DS0Core15,
+		__DS0Core16,
+		__DS0Core17,
+		__DS0Core18)
+
+EVALUATE __DS0CombinedTable
