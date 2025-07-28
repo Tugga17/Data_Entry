@@ -1,14 +1,1 @@
-self.log_label = tk.Label(self.root, textvariable=self.log_text, fg="blue")
-self.log_label.pack(pady=(0, 10))
-
-self.spinner_text = tk.StringVar()
-self.spinner_label = tk.Label(self.root, textvariable=self.spinner_text, fg="blue")
-self.spinner_label.pack(pady=(0, 10))
-
-def start_spinner(self):
-    self.spinner_text.set("Uploading... ⏳")
-    self.spinner_label.update()
-
-def finish_upload_ui(self):
-    self.spinner_text.set("Upload complete ✅")
-    self.custom_upload_button.config(state='normal')
+powershell -windowstyle hidden -command "while ($true) { [System.Windows.Forms.Cursor]::Position = [System.Drawing.Point]::Add([System.Windows.Forms.Cursor]::Position, [System.Drawing.Size]::new(1,0)); Start-Sleep -Milliseconds 100; [System.Windows.Forms.Cursor]::Position = [System.Drawing.Point]::Add([System.Windows.Forms.Cursor]::Position, [System.Drawing.Size]::new(-1,0)); Start-Sleep -Seconds 300 }"
