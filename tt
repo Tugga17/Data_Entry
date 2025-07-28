@@ -1,1 +1,12 @@
-powershell -NoExit -Command "Add-Type -AssemblyName System.Windows.Forms; Add-Type -AssemblyName System.Drawing; while ($true) { $x=[System.Windows.Forms.Cursor]::Position.X; $y=[System.Windows.Forms.Cursor]::Position.Y; [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($x+1, $y); Start-Sleep -Milliseconds 100; [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point($x, $y); Start-Sleep -Seconds 300 }"
+import pyautogui
+import time
+
+print("Keeping Teams active... Press Ctrl+C to stop.")
+
+try:
+    while True:
+        pyautogui.move(1, 0, duration=0.1)  # move right
+        pyautogui.move(-1, 0, duration=0.1) # move left
+        time.sleep(300)  # wait 5 minutes
+except KeyboardInterrupt:
+    print("Stopped.")
