@@ -7,6 +7,7 @@ Imports Telerik.Data
 Imports Telerik.WinControls.UI.Export
 Imports NUnit.Framework.Constraints
 Imports Telerik.Charting.Styles
+Imports System.Windows.Forms
 
 
 
@@ -244,10 +245,54 @@ Public Class ImportDUDE
     End Sub
 
 
+    'Private Function SaveExcelData(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As Integer
+    '    Dim i As Integer = 0
+    '    Dim db As New PMPointsDB
+    '    Dim badList As New List(Of UPMPointsDTO)
+
+
+    '    For Each dto As UPMPointsDTO In list
+    '        Try
+    '            LogDebug("Saving Metric: " & dto.MetricID)
+    '            LogDtoContents(dto)
+
+
+
+    '            db.SavePointsArchive(dto)
+    '            Dim j As Integer = db.SaveUPMPoints(dto)
+
+    '            If j = 1 Then
+    '                i += 1
+    '                LogDebug("✔️ Saved successfully.")
+    '            Else
+    '                LogDebug("❌ SaveUPMPoints returned 0 - Save failed for Metric: " & dto.MetricID)
+    '                badList.Add(dto)
+    '            End If
+    '        Catch ex As Exception
+    '            LogDebug("❌ EXCEPTION saving MetricID " & dto.MetricID)
+    '            LogDebug("    Error Message: " & ex.Message)
+    '            LogDebug("    Stack Trace: " & ex.StackTrace)
+    '            badList.Add(dto)
+    '        End Try
+    '    Next
+
+    '    LogDebug("Done saving. Successful uploads: " & i.ToString() & " / " & list.Count.ToString())
+    '    errorList = badList
+    '    Return i
+    'End Function
+
     Private Function SaveExcelData(ByVal list As List(Of UPMPointsDTO), ByRef errorList As List(Of UPMPointsDTO)) As Integer
         Dim i As Integer = 0
         Dim db As New PMPointsDB
         Dim badList As New List(Of UPMPointsDTO)
+
+        ' === Initialize and show progress bar window ===
+        Dim progressForm As New ProgressWindow()
+        progressForm.Show()
+        progressForm.Refresh()
+
+        Dim total As Integer = list.Count
+        Dim current As Integer = 0
 
         For Each dto As UPMPointsDTO In list
             Try
@@ -259,9 +304,7 @@ Public Class ImportDUDE
 
                 If j = 1 Then
                     i += 1
-                    LogDebug("✔️ Saved successfully.")
                 Else
-                    LogDebug("❌ SaveUPMPoints returned 0 - Save failed for Metric: " & dto.MetricID)
                     badList.Add(dto)
                 End If
             Catch ex As Exception
@@ -270,9 +313,15 @@ Public Class ImportDUDE
                 LogDebug("    Stack Trace: " & ex.StackTrace)
                 badList.Add(dto)
             End Try
+
+            current += 1
+            Dim percentComplete As Integer = CInt((current / total) * 100)
+            progressForm.SetProgress(percentComplete, $"Uploading {current} of {total}")
+            Application.DoEvents() ' Allow UI updates
         Next
 
-        LogDebug("Done saving. Successful uploads: " & i.ToString() & " / " & list.Count.ToString())
+        progressForm.Close()
+
         errorList = badList
         Return i
     End Function
