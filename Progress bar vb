@@ -1,0 +1,56 @@
+Imports System.Windows.Forms
+
+Public Class ProgressWindow
+    Inherits Form
+
+    Public WithEvents ProgressBar1 As New ProgressBar()
+    Public WithEvents StatusLabel As New Label()
+
+    Public Sub New()
+        ' Basic window setup
+        Me.Text = "Uploading to Perfman"
+        Me.Width = 400
+        Me.Height = 120
+        Me.FormBorderStyle = FormBorderStyle.FixedDialog
+        Me.StartPosition = FormStartPosition.CenterScreen ' 👈 Centers on screen
+        Me.MaximizeBox = False
+        Me.MinimizeBox = False
+        Me.TopMost = True ' 👈 Stays above all other windows
+
+        ' Progress bar setup
+        ProgressBar1.Width = 350
+        ProgressBar1.Height = 30
+        ProgressBar1.Top = 20
+        ProgressBar1.Left = 20
+        ProgressBar1.Style = ProgressBarStyle.Continuous
+        ProgressBar1.Minimum = 0
+        ProgressBar1.Maximum = 100
+        Me.Controls.Add(ProgressBar1)
+
+        ' Status label setup
+        StatusLabel.Top = 60
+        StatusLabel.Left = 20
+        StatusLabel.Width = 350
+        StatusLabel.Text = "Starting upload..."
+        Me.Controls.Add(StatusLabel)
+
+        ' Make sure it appears on top immediately
+        Me.Show()
+        Me.BringToFront()
+        Me.Activate()
+    End Sub
+
+    Public Sub SetProgress(value As Integer, Optional statusText As String = "")
+        If Me.InvokeRequired Then
+            Me.Invoke(Sub() SetProgress(value, statusText))
+        Else
+            ProgressBar1.Value = Math.Min(ProgressBar1.Maximum, Math.Max(ProgressBar1.Minimum, value))
+            If Not String.IsNullOrEmpty(statusText) Then
+                StatusLabel.Text = statusText
+            End If
+        End If
+    End Sub
+End Class
+
+
+
