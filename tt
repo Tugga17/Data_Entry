@@ -103,3 +103,24 @@ Private Function VerifyPointsInDB(ByVal list As List(Of UPMPointsDTO), ByRef bad
 
     Return goodList
 End Function
+
+
+
+Dim showProgressThread As New Threading.Thread(Sub()
+    progressForm = New ProgressWindow("Verifying Points")
+    Application.Run(progressForm)
+End Sub)
+showProgressThread.SetApartmentState(Threading.ApartmentState.STA)
+showProgressThread.Start()
+
+While progressForm Is Nothing OrElse Not progressForm.IsHandleCreated
+    Threading.Thread.Sleep(50)
+End While
+
+
+If progressForm IsNot Nothing AndAlso progressForm.IsHandleCreated Then
+    progressForm.Invoke(Sub()
+        progressForm.Close()
+    End Sub)
+    progressForm = Nothing
+End If
